@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyBudget.Shared;
 
 namespace MyBudget.Server.Controllers
 {

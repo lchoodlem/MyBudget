@@ -1,0 +1,17 @@
+﻿@page "/admin"
+
+<MudText Typo="Typo.h3">Administration</MudText>
+
+<MudDivider DividerType="DividerType.Middle"></MudDivider>
+
+<MudTabs Elevation="4" Rounded="true" AlwaysShowScrollButtons="true" Color="@Color.Info" Class="mt-4">
+    <MudTabPanel Text="Transaction Types"><TransactionTypeList></TransactionTypeList></MudTabPanel>
+    <MudTabPanel Text="Companies" />
+    <MudTabPanel Text="Budget Transactions" />
+    <MudTabPanel Text="Bi-Weeklsy Start Dates" />
+</MudTabs>
+
+
+@code {
+
+}
