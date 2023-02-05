@@ -1,0 +1,88 @@
+﻿<MudText Typo="Typo.h3">Transaction Types</MudText>
+
+<MudPaper Width="90%">
+
+    <MudTable Items="@TransactionTypes" Hover="true" CanCancelEdit="true" >
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Type</MudTh>
+            <MudTh>(-/+)</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Edit</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Nr">@context.Id</MudTd>
+            <MudTd DataLabel="Sign">@context.TypeName</MudTd>
+            <MudTd DataLabel="Name">@context.Debit</MudTd>
+            <MudTd DataLabel="Molar mass">@context.Description</MudTd>
+            <MudTd DataLabel="Edit"></MudTd>
+        </RowTemplate>
+
+    </MudTable>
+
+</MudPaper>
+
+
+
+@code {
+    private static List<TransactionType> TransactionTypes = new List<TransactionType>
+    {
+        new TransactionType
+        {
+            Id = 1,
+            TypeName = "Deposit",
+            Debit = false,
+            Description = "This is a Deposit Transation (+)"
+
+        },
+        new TransactionType
+        {
+            Id = 2,
+            TypeName = "Payment",
+            Debit = true,
+            Description = "This is a Paymenmt Transation (-)"
+
+        },
+        new TransactionType
+        {
+            Id = 3,
+            TypeName = "TruckPymt",
+            Debit = true,
+            Description = "This is a Vehicle Payment Transation (-)"
+
+        },
+        new TransactionType
+        {
+            Id = 4,
+            TypeName = "LaonPymt",
+            Debit = true,
+            Description = "This is a Loan Payment Transation (-)"
+
+        },
+        new TransactionType
+        {
+            Id = 5,
+            TypeName = "Cash",
+            Debit = true,
+            Description = "This is a Withdrawl Transation (-)"
+
+        },
+        new TransactionType
+        {
+            Id = 6,
+            TypeName = "CCPayment",
+            Debit = true,
+            Description = "This is a Credit Card Paymenmt Transation (-)"
+
+        },
+        new TransactionType
+        {
+            Id = 2,
+            TypeName = "Payroll",
+            Debit = false,
+            Description = "This is a Salary Transation (+)"
+
+        }
+    };
+
+}
