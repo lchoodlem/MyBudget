@@ -1,4 +1,6 @@
-﻿<MudText Typo="Typo.h3">Transaction Types</MudText>
+﻿@inject HttpClient Http
+
+<MudText Typo="Typo.h3">Transaction Types</MudText>
 
 <MudPaper Width="90%">
 
@@ -25,64 +27,14 @@
 
 
 @code {
-    private static List<TransactionType> TransactionTypes = new List<TransactionType>
+    private static List<TransactionType> TransactionTypes = new List<TransactionType>();
+
+    protected override async Task OnInitializedAsync()
     {
-        new TransactionType
-        {
-            Id = 1,
-            TypeName = "Deposit",
-            Debit = false,
-            Description = "This is a Deposit Transation (+)"
+        var result = await Http.GetFromJsonAsync<List<TransactionType>>("api/TransactionType");
+        if (result != null)
+            TransactionTypes = result;
+    }
 
-        },
-        new TransactionType
-        {
-            Id = 2,
-            TypeName = "Payment",
-            Debit = true,
-            Description = "This is a Paymenmt Transation (-)"
-
-        },
-        new TransactionType
-        {
-            Id = 3,
-            TypeName = "TruckPymt",
-            Debit = true,
-            Description = "This is a Vehicle Payment Transation (-)"
-
-        },
-        new TransactionType
-        {
-            Id = 4,
-            TypeName = "LaonPymt",
-            Debit = true,
-            Description = "This is a Loan Payment Transation (-)"
-
-        },
-        new TransactionType
-        {
-            Id = 5,
-            TypeName = "Cash",
-            Debit = true,
-            Description = "This is a Withdrawl Transation (-)"
-
-        },
-        new TransactionType
-        {
-            Id = 6,
-            TypeName = "CCPayment",
-            Debit = true,
-            Description = "This is a Credit Card Paymenmt Transation (-)"
-
-        },
-        new TransactionType
-        {
-            Id = 2,
-            TypeName = "Payroll",
-            Debit = false,
-            Description = "This is a Salary Transation (+)"
-
-        }
-    };
 
 }
