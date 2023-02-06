@@ -1,0 +1,36 @@
+﻿@inject HttpClient Http
+
+<MudText Typo="Typo.h3">Account Types</MudText>
+<MudDivider></MudDivider>
+<MudDivider DividerType="DividerType.Middle"></MudDivider>
+<MudPaper Width="90%">
+
+    <MudTable Items="@AcctTypes" Hover="true" CanCancelEdit="true" >
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Name</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Edit"></MudTd>
+        </RowTemplate>
+
+    </MudTable>
+
+</MudPaper>
+
+
+
+@code {
+    private static List<AcctType> AcctTypes = new List<AcctType>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Http.GetFromJsonAsync<ServiceResponse<List<AcctType>>>("api/AcctType");
+        if (result != null && result.Data != null)
+            AcctTypes = result.Data;
+    }
+
+
+}

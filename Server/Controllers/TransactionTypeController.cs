@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace MyBudget.Server.Controllers
 {
@@ -7,63 +6,22 @@ namespace MyBudget.Server.Controllers
     [ApiController]
     public class TransactionTypeController : ControllerBase
     {
+        private readonly DataContext _context;
 
-        private static List<TransactionType> TransactionTypes = new List<TransactionType>
+        public TransactionTypeController(DataContext context)
         {
-            new TransactionType
-            {
-                Id = 1,
-                TypeName = "Deposit",
-                Debit = false,
-                Description = "This is a Deposit Transation (+)"
-
-            },
-            new TransactionType
-            {
-                Id = 2,
-                TypeName = "Payment",
-                Debit = true,
-                Description = "This is a Paymenmt Transation (-)"
-
-            },
-            new TransactionType
-            {
-                Id = 3,
-                TypeName = "CashWithdrawl",
-                Debit = true,
-                Description = "This is a Withdrawl Payment Transation (-)"
-
-            },
-             new TransactionType
-            {
-                Id = 4,
-                TypeName = "CashDep",
-                Debit = false,
-                Description = "This is a Withdrawl Transation (+)"
-
-            },
-            new TransactionType
-            {
-                Id = 5,
-                TypeName = "CCPayment",
-                Debit = true,
-                Description = "This is a Credit Card Paymenmt Transation (-)"
-
-            },
-            new TransactionType
-            {
-                Id = 2,
-                TypeName = "Payroll",
-                Debit = false,
-                Description = "This is a Salary Transation (+)"
-
-            }
-        };
+            _context = context;
+        }
 
         [HttpGet]
-        public async Task<ActionResult<List<TransactionType>>> GetTransTypes()
+        public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> GetTransTypes()
         {
-            return Ok(TransactionTypes);
+            var transactions = await _context.TransactionTypes.ToListAsync();
+            var response = new ServiceResponse<List<TransactionType>>()
+            {
+                Data = transactions
+            };
+            return Ok(response);
         }
     }
 }
