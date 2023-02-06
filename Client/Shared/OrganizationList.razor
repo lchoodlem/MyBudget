@@ -1,0 +1,45 @@
+﻿@inject HttpClient Http
+
+<MudText Typo="Typo.h3">Organization</MudText>
+<MudDivider></MudDivider>
+<MudDivider DividerType="DividerType.Middle"></MudDivider>
+<MudPaper Width="90%">
+
+    <MudTable Items="@Organizations" Hover="true" CanCancelEdit="true">
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Phone1</MudTh>
+            <MudTh>Phone2</MudTh>
+            <MudTh>Address1</MudTh>
+            <MudTh>Address2</MudTh>
+            <MudTh>Edit</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Phone1">@context.Phone1</MudTd>
+            <MudTd DataLabel="Phone2">@context.Phone2</MudTd>
+            <MudTd DataLabel="Address1">@context.Address1</MudTd>
+            <MudTd DataLabel="Address2">@context.Address2</MudTd>
+            <MudTd DataLabel="Edit"></MudTd>
+        </RowTemplate>
+
+    </MudTable>
+
+</MudPaper>
+
+
+
+@code {
+    private static List<Organization> Organizations = new List<Organization>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Http.GetFromJsonAsync<ServiceResponse<List<Organization>>>("api/Organization");
+        if (result != null && result.Data != null)
+            Organizations = result.Data;
+    }
+
+
+}

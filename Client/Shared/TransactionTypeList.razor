@@ -1,7 +1,8 @@
 ﻿@inject HttpClient Http
 
 <MudText Typo="Typo.h3">Transaction Types</MudText>
-
+<MudDivider></MudDivider>
+<MudDivider DividerType="DividerType.Middle"></MudDivider>
 <MudPaper Width="90%">
 
     <MudTable Items="@TransactionTypes" Hover="true" CanCancelEdit="true" >
@@ -31,9 +32,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetFromJsonAsync<List<TransactionType>>("api/TransactionType");
-        if (result != null)
-            TransactionTypes = result;
+        var result = await Http.GetFromJsonAsync<ServiceResponse<List<TransactionType>>>("api/TransactionType");
+        if (result != null && result.Data != null)
+            TransactionTypes = result.Data;
     }
 
 

@@ -1,8 +1,9 @@
 ﻿global using MyBudget.Shared;
 global using Microsoft.EntityFrameworkCore;
+global using MyBudget.Server.Data;
+
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.ResponseCompression;
-using MyBudget.Server.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
