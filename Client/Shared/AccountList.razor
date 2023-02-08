@@ -1,0 +1,55 @@
+﻿
+@inject IAccountService AccountService
+
+<MudText Typo="Typo.h3">Accounts</MudText>
+<MudDivider></MudDivider>
+<MudDivider DividerType="DividerType.Middle"></MudDivider>
+<MudPaper Width="90%">
+
+    @if (AccountService.Accounts == null || AccountService.Accounts.Count == 0)
+    {
+        @*       <div class="text-center">
+    <img src="/images/ajax-loader.gif">
+    </div>*@
+        <span>Loading Acctounts</span>
+    }
+    else
+    {
+        <MudTable Items="@AccountService.Accounts" Hover="true" CanCancelEdit="true">
+            <HeaderContent>
+                <MudTh>Id</MudTh>
+                <MudTh>Name</MudTh>
+                <MudTh>Acct#</MudTh>
+                <MudTh>Type</MudTh>
+                <MudTh>Org</MudTh>
+                <MudTh>Edit</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Id">@context.Id</MudTd>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Acct#">@context.AcctNum</MudTd>
+                <MudTd DataLabel="Type">@context.AcctType.Name</MudTd>
+                <MudTd DataLabel="Type">@context.Organization.Name</MudTd>
+                <MudTd DataLabel="Edit">
+                    <a href="/account/@context.Id">
+                        Edit
+                    </a>
+                </MudTd>
+            </RowTemplate>
+
+        </MudTable>
+    }
+</MudPaper>
+
+
+
+@code {
+    private static List<Account> Accounts = new List<Account>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AccountService.GetAccounts();
+    }
+
+
+}

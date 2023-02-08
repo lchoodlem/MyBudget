@@ -6,22 +6,37 @@ namespace MyBudget.Server.Controllers
     [ApiController]
     public class TransactionTypeController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly ITransactionTypeSerrvice _transactionTypeService;
 
-        public TransactionTypeController(DataContext context)
+        public TransactionTypeController(ITransactionTypeSerrvice transactionTypeService)
         {
-            _context = context;
+           
+            _transactionTypeService = transactionTypeService;
         }
 
         [HttpGet]
         public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> GetTransTypes()
         {
-            var transactions = await _context.TransactionTypes.ToListAsync();
-            var response = new ServiceResponse<List<TransactionType>>()
-            {
-                Data = transactions
-            };
-            return Ok(response);
+            var result = await _transactionTypeService.GetTransactionTypes();
+            return Ok(result);
+        }
+        [HttpDelete]
+        public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> DeleteAccount(int id)
+        {
+            var result = await _transactionTypeService.DeleteTransactionType(id);
+            return Ok(result);
+        }
+        [HttpPost]
+        public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> AddAccount(TransactionType transType)
+        {
+            var result = await _transactionTypeService.AddTransactionType(transType);
+            return Ok(result);
+        }
+        [HttpPut]
+        public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> UpdateAccount(TransactionType transType)
+        {
+            var result = await _transactionTypeService.UpdateTransactionType(transType);
+            return Ok(result);
         }
     }
 }

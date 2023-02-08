@@ -1,23 +1,37 @@
-﻿@inject HttpClient Http
+﻿@inject IAcctTypeService AcctTypeService
 
 <MudText Typo="Typo.h3">Account Types</MudText>
 <MudDivider></MudDivider>
 <MudDivider DividerType="DividerType.Middle"></MudDivider>
 <MudPaper Width="90%">
 
-    <MudTable Items="@AcctTypes" Hover="true" CanCancelEdit="true" >
-        <HeaderContent>
-            <MudTh>Id</MudTh>
-            <MudTh>Name</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Id">@context.Id</MudTd>
-            <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Edit"></MudTd>
-        </RowTemplate>
+    @if (AcctTypeService.AcctTypes == null || AcctTypeService.AcctTypes.Count == 0)
+    {
+@*       <div class="text-center">
+           <img src="/images/ajax-loader.gif">
+       </div>*@
+       <span>Loading Acctount Types</span>
+    }
+    else
+    {
+        <MudTable Items="@AcctTypeService.AcctTypes" Hover="true" CanCancelEdit="true">
+            <HeaderContent>
+                <MudTh>Id</MudTh>
+                <MudTh>Name</MudTh>
+                <MudTh>Edit</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Id">@context.Id</MudTd>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Edit">
+                    <a href="/acctType/@context.Id">
+                        Edit
+                    </a>
+                </MudTd>
+            </RowTemplate>
 
-    </MudTable>
-
+        </MudTable>
+    }
 </MudPaper>
 
 
@@ -27,9 +41,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetFromJsonAsync<ServiceResponse<List<AcctType>>>("api/AcctType");
-        if (result != null && result.Data != null)
-            AcctTypes = result.Data;
+        await AcctTypeService.GetAcctTypes();
     }
 
 

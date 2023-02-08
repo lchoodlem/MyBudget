@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyBudget.Server.Controllers
 {
@@ -6,22 +8,46 @@ namespace MyBudget.Server.Controllers
     [ApiController]
     public class AcctTypeController : ControllerBase
     {
-        private readonly DataContext _context;
+       
+        private readonly IAcctTypeService _acctTypeService;
 
-        public AcctTypeController(DataContext context)
+        public AcctTypeController(IAcctTypeService acctTypeService)
         {
-            _context = context;
+           
+            _acctTypeService = acctTypeService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<AcctType>>> GetAccountTypes()
+        public async Task<ActionResult<ServiceResponse<List<AcctType>>>> GetAccountTypes()
         {
-            var acctTypes = await _context.AcctTypes.ToListAsync();
-            var response = new ServiceResponse<List<AcctType>>()
-            {
-                Data = acctTypes
-            };
-            return Ok(response);
+            var result = await _acctTypeService.GetAllAcctTypesAsync();
+            return Ok(result);
         }
+        [HttpGet("{acctTypeId}")]
+        public async Task<ActionResult<ServiceResponse<AcctType>>> GetAccountType(int acctTypeId)
+        {
+           var result = await _acctTypeService.GetAcctTypeAsync(acctTypeId);
+            return Ok(result);
+
+        }
+        [HttpDelete]
+        public async Task<ActionResult<ServiceResponse<List<AcctType>>>> DeleteAcctType(int id)
+        {
+            var result = await _acctTypeService.DeleteAccountType(id);
+            return Ok(result);
+        }
+        [HttpPost]
+        public async Task<ActionResult<ServiceResponse<List<AcctType>>>> AddAccount(AcctType accountType)
+        {
+            var result = await _acctTypeService.AddAccountType(accountType);
+            return Ok(result);
+        }
+        [HttpPut]
+        public async Task<ActionResult<ServiceResponse<List<AcctType>>>> UpdateAccount(AcctType accountType)
+        {
+            var result = await _acctTypeService.UpdateAccountType(accountType);
+            return Ok(result);
+        }
+
     }
 }
