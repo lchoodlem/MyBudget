@@ -7,22 +7,40 @@ namespace MyBudget.Server.Controllers
     [ApiController]
     public class OrganizationController : ControllerBase
     {
-        private readonly DataContext _context;
+       
+        private readonly IOrganizationService _orgainzationService;
 
-        public OrganizationController(DataContext context)
+        public OrganizationController(IOrganizationService orgainzationService)
         {
-            _context = context;
+
+            _orgainzationService = orgainzationService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Organization>>> GetAccountTypes()
+        public async Task<ActionResult<List<Organization>>> GetOrganizations()
         {
-            var orgs = await _context.Organizations.ToListAsync();
-            var response = new ServiceResponse<List<Organization>>()
-            {
-                Data = orgs
-            };
-            return Ok(response);
+            var result = await _orgainzationService.GetOrganizations();          
+            return Ok(result);
+        }
+        [HttpDelete]
+        public async Task<ActionResult<ServiceResponse<List<Organization>>>> DeleteOrganization(int id)
+        {
+            var result = await _orgainzationService.DeleteOrganization(id);
+            return Ok(result);
+        }
+        [HttpPost]
+        public async Task<ActionResult<ServiceResponse<List<Organization>>>> AddOrganization(Organization Organization)
+        {
+            var result = await _orgainzationService.AddOrganization(Organization);
+            return Ok(result);
+        }
+        [HttpPut]
+        public async Task<ActionResult<ServiceResponse<List<Organization>>>> UpdateOrganization(Organization Organization)
+        {
+            var result = await _orgainzationService.UpdateOrganization(Organization);
+            return Ok(result);
         }
     }
+
+
 }

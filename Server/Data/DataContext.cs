@@ -148,10 +148,48 @@ namespace MyBudget.Server.Data
 
                 }
              );
+            modelBuilder.Entity<Account>()
+                .HasData(
+                  new Account
+                  {
+                      Id = 1,
+                      AcctNum = "...0000",
+                      Name = "Egg1",
+                      OrganizationId = 7,
+                      AcctTypeId = 3
+                  },
+                  new Account
+                  {
+                      Id = 2,
+                      AcctNum = "...0000",
+                      Name = "Egg2",
+                      OrganizationId = 7,
+                      AcctTypeId = 3
+                  },
+                  new Account
+                  {
+                      Id = 3,
+                      AcctNum = "...0000",
+                      Name = "Bronco",
+                      OrganizationId = 2,
+                      AcctTypeId = 3
+                  },
+                  new Account
+                  {
+                      Id = 4,
+                      AcctNum = "...0000",
+                      Name = "Harley",
+                      OrganizationId = 1,
+                      AcctTypeId = 3
+                  }
+
+               );
         }
         public DbSet<TransactionType> TransactionTypes { get; set; }
         public DbSet<AcctType> AcctTypes { get; set; }
         public DbSet<Organization> Organizations { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+
 
     }
 }

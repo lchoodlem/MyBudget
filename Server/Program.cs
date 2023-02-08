@@ -1,9 +1,15 @@
 ﻿global using MyBudget.Shared;
 global using Microsoft.EntityFrameworkCore;
 global using MyBudget.Server.Data;
+global using MyBudget.Server.Services.AcctTypeService;
+global using MyBudget.Server.Services.AccountService;
+global using MyBudget.Server.Services.OrganizationService;
+global using MyBudget.Server.Services.TransactionTypeService;
+
 
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.ResponseCompression;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +26,11 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IAcctTypeService, AcctTypeService>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+builder.Services.AddScoped<ITransactionTypeSerrvice, TransactionTypeService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 
 var app = builder.Build();

@@ -1,0 +1,67 @@
+﻿@page "/organization/create"
+@page "/organization/edit/{id:int}"
+
+@inject IOrganizationService OrganizationService
+@inject ISnackbar Snackbar
+@inject NavigationManager _navigationManager
+
+<h3>Organization Edit</h3>
+
+
+<div class="header">
+    <div class="col">Name</div>
+    <div class="col">Phone1</div>
+    <div class="col">Phone2</div>
+    <div class="col">Address1</div>
+    <div class="col">Address2</div>
+    <div class="col"></div>
+</div>
+
+@code {
+    Organization editingOrg = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await OrganizationService.GetOrganizations();
+        OrganizationService.OnChange += StateHasChanged;
+    }
+
+    private void Dispose()
+    {
+        OrganizationService.OnChange -= StateHasChanged;
+    }
+
+    private void CreateNewOrganization()
+    {
+        editingOrg = OrganizationService.CreateNewOrganization();
+    }
+
+    private void EditOrganization(Organization organization)
+    {
+        organization.Editing = true;
+        editingOrg = organization;
+
+    }
+
+    private async Task UpdateOrganization()
+    {
+        if (editingOrg.IsNew)
+            await OrganizationService.AddOrganization(editingOrg);
+        else
+            await OrganizationService.UpdateOrganization(editingOrg);
+        editingOrg = new Organization();
+
+    }
+
+    private async Task CancelEditing()
+    {
+        editingOrg = new Organization();
+        await OrganizationService.GetOrganizations();
+    }
+
+    private async Task DeleteOrganization(int id)
+    {
+        await OrganizationService.DeleteOrganization(id);
+    }
+
+}

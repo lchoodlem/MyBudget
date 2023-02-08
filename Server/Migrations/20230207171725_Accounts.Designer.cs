@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyBudget.Server.Data;
 
@@ -10,9 +11,11 @@ using MyBudget.Server.Data;
 namespace MyBudget.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230207171725_Accounts")]
+    partial class Accounts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,18 +39,12 @@ namespace MyBudget.Server.Migrations
                     b.Property<int>("AcctTypeId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OrganizationId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Visible")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -63,40 +60,32 @@ namespace MyBudget.Server.Migrations
                             Id = 1,
                             AcctNum = "...0000",
                             AcctTypeId = 3,
-                            Deleted = false,
                             Name = "Egg1",
-                            OrganizationId = 7,
-                            Visible = true
+                            OrganizationId = 7
                         },
                         new
                         {
                             Id = 2,
                             AcctNum = "...0000",
                             AcctTypeId = 3,
-                            Deleted = false,
                             Name = "Egg2",
-                            OrganizationId = 7,
-                            Visible = true
+                            OrganizationId = 7
                         },
                         new
                         {
                             Id = 3,
                             AcctNum = "...0000",
                             AcctTypeId = 3,
-                            Deleted = false,
                             Name = "Bronco",
-                            OrganizationId = 2,
-                            Visible = true
+                            OrganizationId = 2
                         },
                         new
                         {
                             Id = 4,
                             AcctNum = "...0000",
                             AcctTypeId = 3,
-                            Deleted = false,
                             Name = "Harley",
-                            OrganizationId = 1,
-                            Visible = true
+                            OrganizationId = 1
                         });
                 });
 
@@ -108,15 +97,9 @@ namespace MyBudget.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Visible")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -126,30 +109,22 @@ namespace MyBudget.Server.Migrations
                         new
                         {
                             Id = 1,
-                            Deleted = false,
-                            Name = "Visa",
-                            Visible = true
+                            Name = "Visa"
                         },
                         new
                         {
                             Id = 2,
-                            Deleted = false,
-                            Name = "MC",
-                            Visible = true
+                            Name = "MC"
                         },
                         new
                         {
                             Id = 3,
-                            Deleted = false,
-                            Name = "Loan",
-                            Visible = true
+                            Name = "Loan"
                         },
                         new
                         {
                             Id = 4,
-                            Deleted = false,
-                            Name = "Bank",
-                            Visible = true
+                            Name = "Bank"
                         });
                 });
 
@@ -169,9 +144,6 @@ namespace MyBudget.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -188,9 +160,6 @@ namespace MyBudget.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Visible")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.ToTable("Organizations");
@@ -201,132 +170,110 @@ namespace MyBudget.Server.Migrations
                             Id = 1,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "Chase",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         },
                         new
                         {
                             Id = 2,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "PNC",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         },
                         new
                         {
                             Id = 3,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "Cabellas",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         },
                         new
                         {
                             Id = 4,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "MLife",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         },
                         new
                         {
                             Id = 5,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "Xfinity",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         },
                         new
                         {
                             Id = 6,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "BestBuy",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         },
                         new
                         {
                             Id = 7,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "Best Egg",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         },
                         new
                         {
                             Id = 8,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "NetFlix",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         },
                         new
                         {
                             Id = 9,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "Green Mountain",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         },
                         new
                         {
                             Id = 10,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "Chesapeake",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         },
                         new
                         {
                             Id = 11,
                             Address1 = "",
                             Address2 = "",
-                            Deleted = false,
                             Description = "",
                             Name = "Progressive",
                             Phone1 = "",
-                            Phone2 = "",
-                            Visible = true
+                            Phone2 = ""
                         });
                 });
 
@@ -341,9 +288,6 @@ namespace MyBudget.Server.Migrations
                     b.Property<bool>("Debit")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -351,9 +295,6 @@ namespace MyBudget.Server.Migrations
                     b.Property<string>("TypeName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Visible")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -364,55 +305,43 @@ namespace MyBudget.Server.Migrations
                         {
                             Id = 1,
                             Debit = false,
-                            Deleted = false,
                             Description = "This is a Deposit Transation (+)",
-                            TypeName = "Deposit",
-                            Visible = true
+                            TypeName = "Deposit"
                         },
                         new
                         {
                             Id = 2,
                             Debit = true,
-                            Deleted = false,
                             Description = "This is a Paymenmt Transation (-)",
-                            TypeName = "Payment",
-                            Visible = true
+                            TypeName = "Payment"
                         },
                         new
                         {
                             Id = 3,
                             Debit = true,
-                            Deleted = false,
                             Description = "This is a Withdrawl Payment Transation (-)",
-                            TypeName = "CashWithdrawl",
-                            Visible = true
+                            TypeName = "CashWithdrawl"
                         },
                         new
                         {
                             Id = 4,
                             Debit = false,
-                            Deleted = false,
                             Description = "This is a Withdrawl Transation (+)",
-                            TypeName = "CashDep",
-                            Visible = true
+                            TypeName = "CashDep"
                         },
                         new
                         {
                             Id = 5,
                             Debit = true,
-                            Deleted = false,
                             Description = "This is a Credit Card Paymenmt Transation (-)",
-                            TypeName = "CCPayment",
-                            Visible = true
+                            TypeName = "CCPayment"
                         },
                         new
                         {
                             Id = 6,
                             Debit = false,
-                            Deleted = false,
                             Description = "This is a Salary Transation (+)",
-                            TypeName = "Payroll",
-                            Visible = true
+                            TypeName = "Payroll"
                         });
                 });
 
