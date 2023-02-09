@@ -12,11 +12,12 @@
         }
         public List<Organization> Organizations { get; set; } = new List<Organization>();
 
-        public async Task GetOrganizations()
+        public async Task<IEnumerable<Organization>> GetOrganizations()
         {
             var response = await _http.GetFromJsonAsync<ServiceResponse<List<Organization>>>("api/organization");
             if(response != null && response.Data != null)
                 Organizations= response.Data;
+            return Organizations;
         }
 
         public async Task<ServiceResponse<Organization>> GetOrganizationById(int organizationId)

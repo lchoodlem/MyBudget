@@ -1,4 +1,5 @@
-﻿@inject HttpClient Http
+﻿@inject NavigationManager _navigationManger
+@inject IOrganizationService _organizationService
 
 <MudText Typo="Typo.h3">Organization</MudText>
 <MudDivider></MudDivider>
@@ -13,7 +14,7 @@
             <MudTh>Phone2</MudTh>
             <MudTh>Address1</MudTh>
             <MudTh>Address2</MudTh>
-            <MudTh>Edit</MudTh>
+            <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Id">@context.Id</MudTd>
@@ -23,6 +24,22 @@
             <MudTd DataLabel="Address1">@context.Address1</MudTd>
             <MudTd DataLabel="Address2">@context.Address2</MudTd>
             <MudTd DataLabel="Edit"></MudTd>
+            <MudTd DataLabel="Actions">
+                <MudButton OnClick="@((e) => EditObj(context))"
+                           Variant="Variant.Text"
+                           EndIcon="@Icons.Material.Outlined.Edit"
+                           Color="Color.Default"
+                           Style="text-transform:none"
+                           Disabled=@disableEdit>
+                </MudButton>
+                <MudButton OnClick="@((e) => DeleteObj(context))"
+                           Variant="Variant.Text"
+                           EndIcon="@Icons.Material.Filled.Delete"
+                           Color="Color.Error"
+                           Style="text-transform:none"
+                           Disabled=false>
+                </MudButton>
+            </MudTd>
         </RowTemplate>
 
     </MudTable>
@@ -32,13 +49,56 @@
 
 
 @code {
-    private static List<Organization> Organizations = new List<Organization>();
+    private IEnumerable<Organization> Organizations = new List<Organization>();
+    private string objApi = "Organization";
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetFromJsonAsync<ServiceResponse<List<Organization>>>("api/Organization");
-        if (result != null && result.Data != null)
-            Organizations = result.Data;
+        await _organizationService.GetOrganizations();
+    }
+
+    private int DeleteId { get; set; } = 0;
+    private int EditId { get; set; } = 0;
+    private bool disableEdit { get; set; } = false;
+    public bool isLoading { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadObject();
+        }
+
+
+    }
+    private async Task LoadObject()
+    {
+        isLoading = true;
+        StateHasChanged();
+        Organizations = await _organizationService.GetOrganizations();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    public async Task DeleteObj(Organization obj)
+    {
+        DeleteId = obj.Id;
+
+        //Delete
+        await _organizationService.DeleteOrganization(DeleteId);
+        await LoadObject();
+
+    }
+
+
+    public async Task EditObj(Organization obj)
+    {
+        EditId = obj.Id;
+
+        //Update
+        _navigationManger.NavigateTo($"{objApi}/edit/{EditId}");
+        await LoadObject();
+
     }
 
 

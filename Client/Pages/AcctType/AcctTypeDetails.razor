@@ -1,0 +1,166 @@
+﻿@page "/acctType/edit/{id:int}"
+@page "/acctType/create"
+@inject IAcctTypeService _acctTypeService
+@implements IDisposable
+
+@inject ISnackbar _snackBar
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigationManager
+
+@if (acctType == null)
+{
+    <span>@message</span>
+}
+else
+{
+    <EditForm Model="@acctType" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudGrid>
+            <MudItem xs="12" sm="7">
+                <MudCard>
+                    <MudCardContent>
+                        <MudTextField Label="Acct Type" HelperText="Max. 8 characters"
+                                  @bind-Value="@acctType.Name" For="@(() => @acctType.Name)" />
+                        <MudTextField Label="Visible" Class="mt-3"
+                                  @bind-Value="@acctType.Visible" For="@(() => @acctType.Visible)" />
+                        <MudTextField Label="Delete" HelperText="Choose a strong password" Class="mt-3"
+                                  @bind-Value="@acctType.Deleted" For="@(() => @acctType.Deleted)" />
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton OnClick="@((e) => CancelEditing())"
+                               Variant="Variant.Text"
+                               EndIcon="@Icons.Material.Filled.Cancel"
+                               Color="Color.Tertiary"
+                               Style="text-transform:none"
+                               Disabled=false>
+                        </MudButton>
+                        <MudButton OnClick="@((e) => UpsertObject())"
+                               Variant="Variant.Text"
+                               EndIcon="@Icons.Material.Outlined.Save"
+                               Color="Color.Success"
+                               Style="text-transform:none"
+                               Disabled=@disableEdit>
+                        </MudButton>
+                        <MudButton OnClick="@((e) => DeleteObject())"
+                               Variant="Variant.Text"
+                               EndIcon="@Icons.Material.Filled.Delete"
+                               Color="Color.Error"
+                               Style="text-transform:none"
+                               Disabled=false>
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+
+}
+
+@code {
+    private string message = string.Empty;
+    private bool success = false;
+
+    [Parameter]
+    public int Id { get; set; }
+    private AcctType editingObj { get; set; } = new AcctType() { IsNew = true };
+    private string Title { get; set; } = "Create";
+    public bool isLoading { get; set; } = true;
+    private string insertUdateInfo = "updated";
+    private string returnHome = "acctType";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        EditObject(editingObj);
+        if (firstRender)
+        {
+            if(Id == 0)
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+            else
+            {
+                //Update
+                Title = "Update";
+                await LoadObject();
+            }
+        }
+    }
+
+    private async Task LoadObject()
+    {
+        isLoading = true;
+        StateHasChanged();
+        editingObj = await _acctTypeService.GetAcctTypeById(Id);
+        editingObj.IsNew = false;
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task UpsertObject()
+    {
+        if (editingObj.Name == null || editingObj.Name == "")
+        {
+            OnClickSnack("Error", "Name is required", true);
+        }
+        else
+        {
+            if (editingObj.Id == 0)
+            {
+                //Create
+                await _acctTypeService.AddObject(editingObj);
+                insertUdateInfo = "created";
+            }
+            else
+            {
+                await _acctTypeService.UpdateObject(editingObj);
+                insertUdateInfo = "updated";
+            }
+            OnClickSnack("Success", $"Account Type {editingObj.Name} was {insertUdateInfo}.", true);
+            await _acctTypeService.GetAcctTypes();
+            _navigationManager.NavigateTo(returnHome);
+        }
+    }
+
+    private void OnClickSnack(string severity, string message, bool close = true)
+    {
+        var severityType = (Severity)Enum.Parse(typeof(Severity), severity, true);
+        @if (!close)
+            _snackBar.Add(message, severityType, ConfigurationBinder => { ConfigurationBinder.ShowCloseIcon = false; });
+        _snackBar.Add(message, severityType);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await _acctTypeService.GetAcctTypes();
+        _acctTypeService.OnChange += StateHasChanged();
+    }
+
+    private void Dispose()
+    {
+        _acctTypeService.OnChange -= StateHasChanged();
+    }
+
+    private void EditObject(AcctType obj)
+    {
+        obj.Editing = true;
+        editingObj = obj;
+
+    }
+
+    private async Task DeleteObject()
+    {
+        if (editingObj.Id == null || editingObj.Id == 0)
+            return;
+        await _acctTypeService.DeleteObject(editingObj.Id);
+        await _acctTypeService.GetAcctTypes();
+        _navigationManager.NavigateTo(returnHome);
+    }
+    private async Task CancelEditing()
+    {
+        editingObj = new Organization();
+        await _acctTypeService.GetAcctTypes();
+        _navigationManager.NavigateTo(returnHome);
+    }
+
+}

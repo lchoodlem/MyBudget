@@ -1,0 +1,163 @@
+﻿@page "/organization/create"
+@page "/organization/edit/{id:int}"
+@implements IDisposable
+
+@inject ISnackbar _snackBar
+@inject IOrganizationService _organizationService
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigationManager
+
+<h3>Organization Edit</h3>
+<MudPaper Class="pa-16 ma-2" Elevation="3">
+    <EditForm Model="@editingOrg" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudGrid>
+            <MudItem xs="12" sm="7">
+                <MudCard>
+                    <MudCardContent>
+                        <MudTextField Label="Organization Name"
+                                      @bind-Value="editingOrg.Name" For="@(() => editingOrg.Name)" />
+                        <MudTextField Label="Phone1" Class="mt-3"
+                                      @bind-Value="editingOrg.Phone1" For="@(() => editingOrg.Phone1)" InputType="InputType.Telephone" />
+                        <MudTextField Label="Phone2"  Class="mt-3"
+                                      @bind-Value="editingOrg.Phone2" For="@(() => editingOrg.Phone2)" InputType="InputType.Telephone" />
+                        <MudTextField Label="Address1" Class="mt-3"
+                                      @bind-Value="editingOrg.Address1" For="@(() => editingOrg.Address1)" />
+                        <MudTextField Label="Address2" Class="mt-3"
+                                      @bind-Value="editingOrg.Address2" For="@(() => editingOrg.Address1)" />
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton OnClick="@((e) => CancelEditing())"
+                                   Variant="Variant.Text"
+                                   EndIcon="@Icons.Material.Filled.Cancel"
+                                   Color="Color.Tertiary"
+                                   Style="text-transform:none"
+                                   Disabled=false>
+                        </MudButton>
+                        <MudButton OnClick="@((e) => UpsertObject())"
+                                   Variant="Variant.Text"
+                                   EndIcon="@Icons.Material.Outlined.Save"
+                                   Color="Color.Success"
+                                   Style="text-transform:none"
+                                   Disabled=@disableEdit>
+                        </MudButton>
+                        <MudButton OnClick="@((e) => DeleteObject())"
+                                   Variant="Variant.Text"
+                                   EndIcon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Style="text-transform:none"
+                                   Disabled=false>
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+
+        </MudGrid>
+    </EditForm>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Organization editingOrg { get; set; } = new Organization() { IsNew = true };
+    private string Title { get; set; } = "Create";
+    private bool isLoading { get; set; } = true;
+    private string insertUdateInfo = "updated";
+
+    protected override OnAfterRenderAsync(bool firstRender)
+    {
+        EditOrganization(editingOrg);
+
+        if (firstRender)
+        {
+            if (Id == 0)
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+            else
+            {
+                //Update
+                Title = "Update";
+                await LoadObject();
+            }
+        }
+    }
+    private async Task LoadObject()
+    {
+        isLoading = true;
+        StateHasChanged();
+        editingOrg = await _organizationService.GetOrganizationById(Id);
+        editingOrg.IsNew = false;
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task UpsertObject()
+    {
+        if (editingOrg.Name == null || editingOrg.Name == "")
+        {
+            OnClickSnack("Error", "Name is required", true);
+        }
+        else
+        {
+            if (editingOrg.Id == 0)
+            {
+                //Create
+                await _organizationService.AddOrganization(editingOrg);
+                insertUdateInfo = 'created';
+            }
+            else
+            {
+                await _organizationService.UpdateOrganization(editingOrg);
+                insertUdateInfo = 'updated';
+            }
+            OnClickSnack("Success", $"Organization {editingOrg.Name} was {insertUpdateInfo}.", true);
+            await _organizationService.GetOrganizations();
+            _navigationManager.NavigateTo("organization");
+        }
+    }
+
+    private void OnClickSnack(string severity, string message, bool close = true)
+    {
+        var severityType = (Severity)Enum.Parse(typeof(Severity), severity, true);
+        @if (!close)
+            Snackbar.Add(message, severityType, ConfigurationBinder => { ConfigurationBinder.ShowCloseIcon = false; });
+        Snackbar.Add(message, severityType);
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await _organizationService.GetOrganizations();
+        _organizationService.OnChange += StateHasChanged)();
+    }
+
+    private void Dispose()
+    {
+        _organizationService.OnChange -= StateHasChanged();
+    }
+
+    private void EditOrganization(Organization organization)
+    {
+        organization.Editing = true;
+        editingOrg = organization;
+
+    }
+
+    private async Task DeleteObject()
+    {
+        if (editingOrg.id == null || editingOrg.id == 0)
+            return;
+        await _organizationService.DeleteOrganization(editingOrg.id);
+        await _organizationService.GetOrganizations();
+        _navigationManager.NavigateTo("organization");
+    }
+    private async Task CancelEditing()
+    {
+        editingOrg = new Organization();
+        await _organizationService.GetOrganizations();
+        _navigationManager.NavigateTo("organization");
+    }
+}

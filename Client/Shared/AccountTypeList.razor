@@ -1,48 +1,120 @@
 ﻿@inject IAcctTypeService AcctTypeService
+@inject IDialogService DialogService
+@inject NavigationManager _navigationManger
+@inject IJSRuntime _jsRuntime
 
-<MudText Typo="Typo.h3">Account Types</MudText>
-<MudDivider></MudDivider>
-<MudDivider DividerType="DividerType.Middle"></MudDivider>
-<MudPaper Width="90%">
+<MudPaper Width="90%" Square="true">
+    <div class="row at-4">
+        <div class="col-6">
+            <MudText Typo="Typo.h4" Class="card-title text-primary">Account Types</MudText>
+        </div>
+        <MudDivider></MudDivider>
+        <MudDivider DividerType="DividerType.Middle"></MudDivider>
+        <div class="col-4 offset-2">
+            <MudButton Variant="Variant.Filled" Size=Size.Medium
+                       Color="Color.Primary" Href="category/create">Add New Category</MudButton>
+        </div>
+        <div class="col-12">
+            @if (AcctTypes.Any())
+            {
+                <MudTable Items="AcctTypes">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Actions">
+                            <MudButton OnClick="@((e) => EditObj(context))"
+                                   Variant="Variant.Text"
+                                   EndIcon="@Icons.Material.Outlined.Edit"
+                                   Color="Color.Default"
+                                   Style="text-transform:none"
+                                   Disabled=@disableEdit>
+                            </MudButton>
+                            <MudButton OnClick="@((e) => DeleteObj(context))"
+                                   Variant="Variant.Text"
+                                   EndIcon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Style="text-transform:none"
+                                   Disabled=false>
+                            </MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+            else
+            {
+                if (isLoading)
+                {
+                    // loader....
+                    <div class="text-center">
+                        <img src="/images/ajax-loader.gif">
+                    </div>
+                }
+                else
+                {
+                    <p>No records found</p>
+                }
+            }
+        </div>
+    </div>
 
-    @if (AcctTypeService.AcctTypes == null || AcctTypeService.AcctTypes.Count == 0)
-    {
-@*       <div class="text-center">
-           <img src="/images/ajax-loader.gif">
-       </div>*@
-       <span>Loading Acctount Types</span>
-    }
-    else
-    {
-        <MudTable Items="@AcctTypeService.AcctTypes" Hover="true" CanCancelEdit="true">
-            <HeaderContent>
-                <MudTh>Id</MudTh>
-                <MudTh>Name</MudTh>
-                <MudTh>Edit</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Id">@context.Id</MudTd>
-                <MudTd DataLabel="Name">@context.Name</MudTd>
-                <MudTd DataLabel="Edit">
-                    <a href="/acctType/@context.Id">
-                        Edit
-                    </a>
-                </MudTd>
-            </RowTemplate>
-
-        </MudTable>
-    }
 </MudPaper>
 
-
-
 @code {
-    private static List<AcctType> AcctTypes = new List<AcctType>();
+    private IEnumerable<AcctType> AcctTypes = new List<AcctType>();
+    private string objApi = "acctType";
 
     protected override async Task OnInitializedAsync()
     {
         await AcctTypeService.GetAcctTypes();
     }
+  
+    private int DeleteId { get; set; } = 0;
+    private int EditId { get; set; } = 0;
+    private bool disableEdit { get; set; } = false;
+    public bool isLoading { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadObject();
+        }
+
+
+    }
+    private async Task LoadObject()
+    {
+        isLoading = true;
+        StateHasChanged();
+        AcctTypes = await AcctTypeService.GetAcctTypes();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    public async Task DeleteObj(AcctType acctType)
+    {
+        DeleteId = acctType.Id;
+
+        //Delete
+        await AcctTypeService.DeleteObject(DeleteId);
+        await LoadObject();
+
+    }
+
+
+    public async Task EditObj(AcctType obj)
+    {
+        EditId = obj.Id;
+
+        //Update
+        _navigationManger.NavigateTo($"{objApi}/edit/{EditId}");
+        await LoadObject();
+
+    }
+  
 
 
 }
