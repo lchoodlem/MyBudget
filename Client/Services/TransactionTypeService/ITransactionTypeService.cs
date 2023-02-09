@@ -5,7 +5,7 @@
         event Action OnChange;
         List<TransactionType> TransactionTypes { get; set; }
 
-        Task GetTransactionTypes();
+        Task<IEnumerable<TransactionType>> GetTransactionTypes();
         Task<ServiceResponse<TransactionType>> GetTransactionTypeById(int transactionTypeId);
         Task AddTransactionType(TransactionType transactionType);
         Task DeleteTransactionType(int transactionTypeId);

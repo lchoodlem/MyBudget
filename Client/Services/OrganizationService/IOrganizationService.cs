@@ -6,7 +6,7 @@
 
         List<Organization> Organizations { get; set; }
 
-        Task GetOrganizations();
+        Task<IEnumerable<Organization>> GetOrganizations();
         Task<ServiceResponse<Organization>> GetOrganizationById(int organizationId);
         Task AddOrganization(Organization organization);
         Task DeleteOrganization(int organizationId);

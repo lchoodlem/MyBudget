@@ -1,4 +1,6 @@
 ﻿@inject HttpClient Http
+@inject NavigationManager _navigationManger
+@inject ITransactionTypeService _transactionTypeService
 
 <MudText Typo="Typo.h3">Transaction Types</MudText>
 <MudDivider></MudDivider>
@@ -11,14 +13,29 @@
             <MudTh>Type</MudTh>
             <MudTh>(-/+)</MudTh>
             <MudTh>Description</MudTh>
-            <MudTh>Edit</MudTh>
+            <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Nr">@context.Id</MudTd>
             <MudTd DataLabel="Sign">@context.TypeName</MudTd>
             <MudTd DataLabel="Name">@context.Debit</MudTd>
             <MudTd DataLabel="Molar mass">@context.Description</MudTd>
-            <MudTd DataLabel="Edit"></MudTd>
+            <MudTd DataLabel="Actions">
+                <MudButton OnClick="@((e) => EditObj(context))"
+                           Variant="Variant.Text"
+                           EndIcon="@Icons.Material.Outlined.Edit"
+                           Color="Color.Default"
+                           Style="text-transform:none"
+                           Disabled=@disableEdit>
+                </MudButton>
+                <MudButton OnClick="@((e) => DeleteObj(context))"
+                           Variant="Variant.Text"
+                           EndIcon="@Icons.Material.Filled.Delete"
+                           Color="Color.Error"
+                           Style="text-transform:none"
+                           Disabled=false>
+                </MudButton>
+            </MudTd>
         </RowTemplate>
 
     </MudTable>
@@ -28,14 +45,57 @@
 
 
 @code {
-    private static List<TransactionType> TransactionTypes = new List<TransactionType>();
+    private static IEnumerable<TransactionType> TransactionTypes = new List<TransactionType>();
+    private string objApi = "transactionType";
+
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetFromJsonAsync<ServiceResponse<List<TransactionType>>>("api/TransactionType");
-        if (result != null && result.Data != null)
-            TransactionTypes = result.Data;
+        await _transactionTypeService.GetTransactionTypes();
     }
 
+    private int DeleteId { get; set; } = 0;
+    private int EditId { get; set; } = 0;
+    private bool disableEdit { get; set; } = false;
+    public bool isLoading { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadObject();
+        }
+
+
+    }
+    private async Task LoadObject()
+    {
+        isLoading = true;
+        StateHasChanged();
+        TransactionTypes = await _transactionTypeService.GetTransactionTypes();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    public async Task DeleteObj(TransactionType obj)
+    {
+        DeleteId = obj.Id;
+
+        //Delete
+        await _transactionTypeService.DeleteTransactionType(DeleteId);
+        await LoadObject();
+
+    }
+
+
+    public async Task EditObj(TransactionType obj)
+    {
+        EditId = obj.Id;
+
+        //Update
+        _navigationManger.NavigateTo($"{objApi}/edit/{EditId}");
+        await LoadObject();
+
+    }
 
 }

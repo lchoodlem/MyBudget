@@ -1,55 +1,124 @@
-﻿
-@inject IAccountService AccountService
+﻿@inject IAccountService AccountService
+@inject IDialogService DialogService
+@inject NavigationManager _navigationManger
 
-<MudText Typo="Typo.h3">Accounts</MudText>
-<MudDivider></MudDivider>
-<MudDivider DividerType="DividerType.Middle"></MudDivider>
 <MudPaper Width="90%">
+    <div class="row at-4">
+        <div class="col-6">
+            <MudText Typo="Typo.h4" Class="card-title text-primary">Accounts</MudText>
+        </div>
+        <MudDivider></MudDivider>
 
-    @if (AccountService.Accounts == null || AccountService.Accounts.Count == 0)
-    {
-        @*       <div class="text-center">
-    <img src="/images/ajax-loader.gif">
-    </div>*@
-        <span>Loading Acctounts</span>
-    }
-    else
-    {
-        <MudTable Items="@AccountService.Accounts" Hover="true" CanCancelEdit="true">
-            <HeaderContent>
-                <MudTh>Id</MudTh>
-                <MudTh>Name</MudTh>
-                <MudTh>Acct#</MudTh>
-                <MudTh>Type</MudTh>
-                <MudTh>Org</MudTh>
-                <MudTh>Edit</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Id">@context.Id</MudTd>
-                <MudTd DataLabel="Name">@context.Name</MudTd>
-                <MudTd DataLabel="Acct#">@context.AcctNum</MudTd>
-                <MudTd DataLabel="Type">@context.AcctType.Name</MudTd>
-                <MudTd DataLabel="Type">@context.Organization.Name</MudTd>
-                <MudTd DataLabel="Edit">
-                    <a href="/account/@context.Id">
-                        Edit
-                    </a>
-                </MudTd>
-            </RowTemplate>
+        <MudDivider DividerType="DividerType.Middle"></MudDivider>
+        <div class="col-4 offset-2">
+            <MudButton Variant="Variant.Filled" Size=Size.Medium
+                       Color="Color.Primary" Href="category/create">Add New Category</MudButton>
+        </div>
+        <div class="col-12">
+            @if (Accounts.Any())
+            {
+                <MudTable Items="Accounts">
+                    <HeaderContent>
+                        <MudTh>Id</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Acct#</MudTh>
+                        <MudTh>Type</MudTh>
+                        <MudTh>Org</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Acct#">@context.AcctNum</MudTd>
+                        <MudTd DataLabel="Type">@context.AcctType.Name</MudTd>
+                        <MudTd DataLabel="Organization">@context.Organization.Name</MudTd>
+                        <MudTd DataLabel="Actions">
+                            <MudButton OnClick="@((e) => EditObj(context))"
+                                   Variant="Variant.Text"
+                                   EndIcon="@Icons.Material.Outlined.Edit"
+                                   Color="Color.Default"
+                                   Style="text-transform:none"
+                                   Disabled=@disableEdit>
 
-        </MudTable>
-    }
+                            </MudButton>
+                            <MudButton OnClick="@((e) => DeleteObj(context))"
+                                   Variant="Variant.Text"
+                                   EndIcon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Style="text-transform:none"
+                                   Disabled=false>
+                            </MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+            else
+            {
+                if (isLoading)
+                {
+                    <div class="text-center">
+                        <img src="/images/loader.gif">
+                    </div>
+                }
+                else
+                {
+                    <p>No Records Found></p>
+                }
+            }
+        </div>
+    </div>
 </MudPaper>
 
 
 
 @code {
-    private static List<Account> Accounts = new List<Account>();
+    private static IEnumerable<Account> Accounts = new List<Account>();
+    private string objApi = "account";
 
     protected override async Task OnInitializedAsync()
     {
         await AccountService.GetAccounts();
     }
 
+    private int DeleteId { get; set; } = 0;
+    private int EditId { get; set; } = 0;
+    private bool disableEdit { get; set; } = false;
+    public bool isLoading { get; set; }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadObj();
+        }
+
+
+    }
+    private async Task LoadObj()
+    {
+        isLoading = true;
+        StateHasChanged();
+        Accounts = await AccountService.GetAccounts();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    public async Task DeleteObj(Account obj)
+    {
+        DeleteId = obj.Id;
+
+        //Delete
+        await AccountService.DeleteObject(DeleteId);
+        await LoadObj();
+
+    }
+
+    public async Task EditObj(Account obj)
+    {
+        EditId = obj.Id;
+        //Update
+        _navigationManger.NavigateTo($"{objApi}/edit/{EditId}");
+        await LoadObj();
+    }
 }
+

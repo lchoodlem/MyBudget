@@ -5,6 +5,8 @@ global using MyBudget.Server.Services.AcctTypeService;
 global using MyBudget.Server.Services.AccountService;
 global using MyBudget.Server.Services.OrganizationService;
 global using MyBudget.Server.Services.TransactionTypeService;
+global using MudBlazor;
+global using MudBlazor.Services;
 
 
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
@@ -23,7 +25,8 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-
+builder.Services.AddServerSideBlazor();
+builder.Services.AddMudServices();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

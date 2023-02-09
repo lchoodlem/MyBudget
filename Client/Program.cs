@@ -1,9 +1,17 @@
 global using MyBudget.Shared;
 global using System.Net.Http.Json;
+global using MudBlazor.Services;
 global using MyBudget.Client.Services.AcctTypesService;
 global using MyBudget.Client.Services.OrganizationService;
 global using MyBudget.Client.Services.TransactionTypeService;
 global using MyBudget.Client.Services.AccountService;
+
+global using MyBudget.Client.Pages.DialogService;
+global using Microsoft.AspNetCore.Components.QuickGrid;
+using System.Net.NetworkInformation;
+
+
+
 
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

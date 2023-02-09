@@ -45,11 +45,12 @@
             return result;
         }
 
-        public async Task GetTransactionTypes()
+        public async Task<IEnumerable<TransactionType>> GetTransactionTypes()
         {
             var response = await _http.GetFromJsonAsync<ServiceResponse<List<TransactionType>>>("api/transactionType");
             if(response != null && response.Data != null) 
                 TransactionTypes= response.Data;
+            return TransactionTypes;
         }
 
         public async Task UpdateTransactionType(TransactionType transactionType)
