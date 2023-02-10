@@ -5,7 +5,6 @@ namespace MyBudget.Server.Services.OrganizationService
     public class OrganizationService : IOrganizationService
     {
         private readonly DataContext _context;
-        private Organization? organization;
 
         public OrganizationService(DataContext context)
         {
@@ -58,14 +57,14 @@ namespace MyBudget.Server.Services.OrganizationService
         {
             var response = new ServiceResponse<Organization>();
             var orgainzation = await _context.Organizations.FindAsync(organizationId);
-            if (organization == null)
+            if (orgainzation == null)
             {
                 response.Success = false;
-                response.Message = $"Sorry, but this Organization: '{organizationId}' does not exist";
+                response.Message = $"Sorry, but this Organization id: '{organizationId}' does not exist";
             }
             else
             {
-                response.Data = organization;
+                response.Data = orgainzation;
             }
             return response;
         }
@@ -95,6 +94,7 @@ namespace MyBudget.Server.Services.OrganizationService
             dbOrganization.Phone1 = organization.Phone1;
             dbOrganization.Phone2 = organization.Phone2;
             dbOrganization.Address1 = organization.Address2;
+            dbOrganization.Deleted = organization.Deleted;// this is to allow reset
 
 
             await _context.SaveChangesAsync();

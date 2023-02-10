@@ -12,7 +12,7 @@
         <MudDivider DividerType="DividerType.Middle"></MudDivider>
         <div class="col-4 offset-2">
             <MudButton Variant="Variant.Filled" Size=Size.Medium
-                       Color="Color.Primary" Href="category/create">Add New Category</MudButton>
+                       Color="Color.Primary" Href="acctType/create">Add New Account Type</MudButton>
         </div>
         <div class="col-12">
             @if (AcctTypes.Any())
@@ -20,10 +20,24 @@
                 <MudTable Items="AcctTypes">
                     <HeaderContent>
                         <MudTh>Name</MudTh>
+                        <MudTh>Visible</MudTh>
+                        <MudTh>Active</MudTh>
                         <MudTh>Actions</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Visible">
+                            <MudToggleIconButton @bind-Toggled="@context.Visible" Size="Size.Large"
+                                             Icon="@Icons.Material.Filled.VisibilityOff" Color="Color.Error" Title="Visible"
+                                             ToggledIcon="@Icons.Material.Filled.Visibility" ToggledColor="@Color.Success" ToggledTitle="InVisible" />
+                            <span>@(context.Visible ? "Visible" : "Invisible")</span>
+                        </MudTd>
+                        <MudTd DataLabel="Active">
+                            <MudToggleIconButton @bind-Toggled="@context.Deleted" Size="Size.Large"
+                                             Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success" Title="Active"
+                                             ToggledIcon="@Icons.Material.Filled.Cancel" ToggledColor="@Color.Error" ToggledTitle="Deleted"/>
+                            <span>@(context.Deleted ? "Deleted" : "Active")</span>
+                        </MudTd>
                         <MudTd DataLabel="Actions">
                             <MudButton OnClick="@((e) => EditObj(context))"
                                    Variant="Variant.Text"
@@ -31,13 +45,6 @@
                                    Color="Color.Default"
                                    Style="text-transform:none"
                                    Disabled=@disableEdit>
-                            </MudButton>
-                            <MudButton OnClick="@((e) => DeleteObj(context))"
-                                   Variant="Variant.Text"
-                                   EndIcon="@Icons.Material.Filled.Delete"
-                                   Color="Color.Error"
-                                   Style="text-transform:none"
-                                   Disabled=false>
                             </MudButton>
                         </MudTd>
                     </RowTemplate>
@@ -70,7 +77,7 @@
     {
         await AcctTypeService.GetAcctTypes();
     }
-  
+
     private int DeleteId { get; set; } = 0;
     private int EditId { get; set; } = 0;
     private bool disableEdit { get; set; } = false;
@@ -94,17 +101,6 @@
         StateHasChanged();
     }
 
-    public async Task DeleteObj(AcctType acctType)
-    {
-        DeleteId = acctType.Id;
-
-        //Delete
-        await AcctTypeService.DeleteObject(DeleteId);
-        await LoadObject();
-
-    }
-
-
     public async Task EditObj(AcctType obj)
     {
         EditId = obj.Id;
@@ -114,7 +110,7 @@
         await LoadObject();
 
     }
-  
+
 
 
 }

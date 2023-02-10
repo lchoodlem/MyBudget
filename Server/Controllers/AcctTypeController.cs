@@ -30,7 +30,7 @@ namespace MyBudget.Server.Controllers
             return Ok(result);
 
         }
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<ActionResult<ServiceResponse<List<AcctType>>>> DeleteAcctType(int id)
         {
             var result = await _acctTypeService.DeleteAccountType(id);

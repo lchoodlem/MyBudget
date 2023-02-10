@@ -74,6 +74,7 @@ namespace MyBudget.Server.Services.TransactionTypeService
             dbTransType.TypeName = transactionType.TypeName;
             dbTransType.Description= transactionType.Description;
             dbTransType.Visible = transactionType.Visible;
+            dbTransType.Deleted = transactionType.Deleted;// this is to allow reset
 
             await _context.SaveChangesAsync();
 

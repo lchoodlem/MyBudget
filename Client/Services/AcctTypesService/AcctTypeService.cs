@@ -1,7 +1,4 @@
-﻿
-using MyBudget.Shared;
-
-namespace MyBudget.Client.Services.AcctTypesService
+﻿namespace MyBudget.Client.Services.AcctTypesService
 {
     public class AcctTypeService : IAcctTypeService
     {
@@ -15,10 +12,10 @@ namespace MyBudget.Client.Services.AcctTypesService
 
         public event Action OnChange;
 
-        public async Task<ServiceResponse<AcctType>> GetAcctTypeById(int acctTypeId)
+        public async Task<AcctType> GetAcctTypeById(int acctTypeId)
         {
             var result = await _http.GetFromJsonAsync<ServiceResponse<AcctType>>($"api/acctType/{acctTypeId}");
-            return result;
+            return result.Data;
         }
 
         public async Task<IEnumerable<AcctType>> GetAcctTypes()
