@@ -7,30 +7,33 @@
 @inject IJSRuntime _jsRuntime
 @inject NavigationManager _navigationManager
 
-@if (acctType == null)
+@if (editingObj == null)
 {
     <span>@message</span>
 }
 else
 {
-    <EditForm Model="@acctType" OnValidSubmit="OnValidSubmit">
-        <DataAnnotationsValidator />
+    <MudForm Model="@editingObj" FieldChanged="@((e) => FormChanged(true))">
+
         <MudGrid>
             <MudItem xs="12" sm="7">
                 <MudCard>
                     <MudCardContent>
-                        <MudTextField Label="Acct Type" HelperText="Max. 8 characters"
-                                  @bind-Value="@acctType.Name" For="@(() => @acctType.Name)" />
-                        <MudTextField Label="Visible" Class="mt-3"
-                                  @bind-Value="@acctType.Visible" For="@(() => @acctType.Visible)" />
-                        <MudTextField Label="Delete" HelperText="Choose a strong password" Class="mt-3"
-                                  @bind-Value="@acctType.Deleted" For="@(() => @acctType.Deleted)" />
+                        <MudTextField Label="Acct Type" HelperText="Min. 3 characters *Required" OnKeyPress="@((e) => FormChanged(true))"
+                                  @bind-Value="@editingObj.Name" For="@(() => @editingObj.Name)" />
+                        <MudToggleIconButton @bind-Toggled="@editingObj.Visible" Size="Size.Large"
+                                         Icon="@Icons.Material.Filled.VisibilityOff" Color="Color.Error" Title="Invisible"
+                                         ToggledIcon="@Icons.Material.Filled.Visibility" ToggledColor="@Color.Success" ToggledTitle="Visible" />
+                        <MudButton OnClick="@((e) => ToggleDelete())" Disabled="@ReadOnlyDel"  Color="@activeColor">
+                            @(ReadOnlyDel ? "Active" : "Reset to Active")
+                        </MudButton>
+                        <div>@(formChanged == true ? "Save changes?" : "")</div>
                     </MudCardContent>
                     <MudCardActions>
                         <MudButton OnClick="@((e) => CancelEditing())"
                                Variant="Variant.Text"
                                EndIcon="@Icons.Material.Filled.Cancel"
-                               Color="Color.Tertiary"
+                               Color="Color.Warning"
                                Style="text-transform:none"
                                Disabled=false>
                         </MudButton>
@@ -39,26 +42,27 @@ else
                                EndIcon="@Icons.Material.Outlined.Save"
                                Color="Color.Success"
                                Style="text-transform:none"
-                               Disabled=@disableEdit>
-                        </MudButton>
-                        <MudButton OnClick="@((e) => DeleteObject())"
-                               Variant="Variant.Text"
-                               EndIcon="@Icons.Material.Filled.Delete"
-                               Color="Color.Error"
-                               Style="text-transform:none"
                                Disabled=false>
                         </MudButton>
+                        <div class="@(editingObj.Deleted ? "d-none" :"")">
+                            <MudButton OnClick="@((e) => DeleteObject())"
+                                   Variant="Variant.Text"
+                                   EndIcon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Style="text-transform:none"
+                                   Disabled=false>
+                            </MudButton>
+                        </div>
                     </MudCardActions>
                 </MudCard>
             </MudItem>
         </MudGrid>
-    </EditForm>
+    </MudForm>
 
 }
 
 @code {
     private string message = string.Empty;
-    private bool success = false;
 
     [Parameter]
     public int Id { get; set; }
@@ -66,14 +70,18 @@ else
     private string Title { get; set; } = "Create";
     public bool isLoading { get; set; } = true;
     private string insertUdateInfo = "updated";
-    private string returnHome = "acctType";
+    private string returnHome = "admin";
+    private bool formChanged { get; set; } = false;
+    private MudBlazor.Color activeColor { get; set; } = Color.Success;
+
+    private bool ReadOnlyDel { get; set; } = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         EditObject(editingObj);
         if (firstRender)
         {
-            if(Id == 0)
+            if (Id == 0)
             {
                 isLoading = false;
                 StateHasChanged();
@@ -92,9 +100,27 @@ else
         isLoading = true;
         StateHasChanged();
         editingObj = await _acctTypeService.GetAcctTypeById(Id);
+        ReadOnlyDel = !editingObj.Deleted;
         editingObj.IsNew = false;
         isLoading = false;
         StateHasChanged();
+    }
+    private void ToggleDelete()
+    {
+        editingObj.Deleted = !editingObj.Deleted;
+        ReadOnlyDel = !editingObj.Deleted;
+        if (ReadOnlyDel)
+            activeColor = Color.Error;
+        formChanged = true;
+        _acctTypeService.OnChange += StateHasChanged;
+    }
+    private void FormChanged(bool yesNo = false)
+    {
+            formChanged = yesNo;
+    }
+    private void ToggleChanged(bool toggled)
+    {
+        formChanged = toggled;
     }
 
     private async Task UpsertObject()
@@ -133,24 +159,25 @@ else
     protected override async Task OnInitializedAsync()
     {
         await _acctTypeService.GetAcctTypes();
-        _acctTypeService.OnChange += StateHasChanged();
+        _acctTypeService.OnChange += StateHasChanged;
     }
 
-    private void Dispose()
+    public void Dispose()
     {
-        _acctTypeService.OnChange -= StateHasChanged();
+        _acctTypeService.OnChange -= StateHasChanged;
     }
 
     private void EditObject(AcctType obj)
     {
         obj.Editing = true;
+        ReadOnlyDel = true;
         editingObj = obj;
 
     }
 
     private async Task DeleteObject()
     {
-        if (editingObj.Id == null || editingObj.Id == 0)
+        if (editingObj.Id == 0)
             return;
         await _acctTypeService.DeleteObject(editingObj.Id);
         await _acctTypeService.GetAcctTypes();
@@ -158,7 +185,7 @@ else
     }
     private async Task CancelEditing()
     {
-        editingObj = new Organization();
+        editingObj = new AcctType();
         await _acctTypeService.GetAcctTypes();
         _navigationManager.NavigateTo(returnHome);
     }

@@ -22,7 +22,7 @@ namespace MyBudget.Server.Services.AcctTypeService
             if(acctType == null)
             {
                 response.Success = false;
-                response.Message = "Sorry, but this Acctount Type does not exist";
+                response.Message = $"Sorry, but this Acctount Type id{acctTypeId} does not exist";
             }
             else
             {
@@ -62,6 +62,7 @@ namespace MyBudget.Server.Services.AcctTypeService
             }
             dbAccountType.Name = accountType.Name;
             dbAccountType.Visible = accountType.Visible;
+            dbAccountType.Deleted = accountType.Deleted;// this is to allow reset
 
 
             await _context.SaveChangesAsync();

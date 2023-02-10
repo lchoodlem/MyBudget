@@ -22,6 +22,13 @@ namespace MyBudget.Server.Controllers
             var result = await _orgainzationService.GetOrganizations();          
             return Ok(result);
         }
+        [HttpGet("{orgId}")]
+        public async Task<ActionResult<ServiceResponse<AcctType>>> GetOrganizationById(int orgId)
+        {
+            var result = await _orgainzationService.GetOrganizationById(orgId);
+            return Ok(result);
+
+        }
         [HttpDelete]
         public async Task<ActionResult<ServiceResponse<List<Organization>>>> DeleteOrganization(int id)
         {

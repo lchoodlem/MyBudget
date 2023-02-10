@@ -2,35 +2,35 @@
 @page "/organization/edit/{id:int}"
 @implements IDisposable
 
-@inject ISnackbar _snackBar
+@inject ISnackbar _snackbar
 @inject IOrganizationService _organizationService
 @inject IJSRuntime _jsRuntime
 @inject NavigationManager _navigationManager
 
 <h3>Organization Edit</h3>
 <MudPaper Class="pa-16 ma-2" Elevation="3">
-    <EditForm Model="@editingOrg" OnValidSubmit="OnValidSubmit">
+    <EditForm Model="@editingObj">
         <DataAnnotationsValidator />
         <MudGrid>
             <MudItem xs="12" sm="7">
                 <MudCard>
                     <MudCardContent>
                         <MudTextField Label="Organization Name"
-                                      @bind-Value="editingOrg.Name" For="@(() => editingOrg.Name)" />
+                                      @bind-Value="@editingObj.Name" For="@(() => @editingObj.Name)" />
                         <MudTextField Label="Phone1" Class="mt-3"
-                                      @bind-Value="editingOrg.Phone1" For="@(() => editingOrg.Phone1)" InputType="InputType.Telephone" />
-                        <MudTextField Label="Phone2"  Class="mt-3"
-                                      @bind-Value="editingOrg.Phone2" For="@(() => editingOrg.Phone2)" InputType="InputType.Telephone" />
+                                      @bind-Value="@editingObj.Phone1" For="@(() => @editingObj.Phone1)" InputType="InputType.Telephone" />
+                        <MudTextField Label="Phone2" Class="mt-3"
+                                      @bind-Value="@editingObj.Phone2" For="@(() => @editingObj.Phone2)" InputType="InputType.Telephone" />
                         <MudTextField Label="Address1" Class="mt-3"
-                                      @bind-Value="editingOrg.Address1" For="@(() => editingOrg.Address1)" />
+                                      @bind-Value="@editingObj.Address1" For="@(() => @editingObj.Address1)" />
                         <MudTextField Label="Address2" Class="mt-3"
-                                      @bind-Value="editingOrg.Address2" For="@(() => editingOrg.Address1)" />
+                                      @bind-Value="@editingObj.Address2" For="@(() => @editingObj.Address1)" />
                     </MudCardContent>
                     <MudCardActions>
                         <MudButton OnClick="@((e) => CancelEditing())"
                                    Variant="Variant.Text"
                                    EndIcon="@Icons.Material.Filled.Cancel"
-                                   Color="Color.Tertiary"
+                                   Color="Color.Warning"
                                    Style="text-transform:none"
                                    Disabled=false>
                         </MudButton>
@@ -39,7 +39,7 @@
                                    EndIcon="@Icons.Material.Outlined.Save"
                                    Color="Color.Success"
                                    Style="text-transform:none"
-                                   Disabled=@disableEdit>
+                                   Disabled=false>
                         </MudButton>
                         <MudButton OnClick="@((e) => DeleteObject())"
                                    Variant="Variant.Text"
@@ -58,22 +58,22 @@
 
 @code {
     [Parameter]
-    public int Id { get; set; }
+    public int id { get; set; }
 
-    private Organization editingOrg { get; set; } = new Organization() { IsNew = true };
+    private Organization editingObj { get; set; } = new Organization() { IsNew = true };
     private string Title { get; set; } = "Create";
     private bool isLoading { get; set; } = true;
     private string insertUdateInfo = "updated";
+    private string returnHome = "admin";
 
-    protected override OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        EditOrganization(editingOrg);
-
-        if (firstRender)
+        EditOrganization(editingObj);
+        if(firstRender)
         {
-            if (Id == 0)
+            if (id == 0)
             {
-                isLoading = false;
+                isLoading=false;
                 StateHasChanged();
             }
             else
@@ -84,38 +84,39 @@
             }
         }
     }
+
     private async Task LoadObject()
     {
         isLoading = true;
         StateHasChanged();
-        editingOrg = await _organizationService.GetOrganizationById(Id);
-        editingOrg.IsNew = false;
+        editingObj = await _organizationService.GetOrganizationById(id);
+        editingObj.IsNew = false;
         isLoading = false;
         StateHasChanged();
     }
 
     private async Task UpsertObject()
     {
-        if (editingOrg.Name == null || editingOrg.Name == "")
+        if (editingObj.Name == null || editingObj.Name == "")
         {
             OnClickSnack("Error", "Name is required", true);
         }
         else
         {
-            if (editingOrg.Id == 0)
+            if (editingObj.Id == 0)
             {
                 //Create
-                await _organizationService.AddOrganization(editingOrg);
-                insertUdateInfo = 'created';
+                await _organizationService.AddOrganization(editingObj);
+                insertUdateInfo = "created";
             }
             else
             {
-                await _organizationService.UpdateOrganization(editingOrg);
-                insertUdateInfo = 'updated';
+                await _organizationService.UpdateOrganization(editingObj);
+                insertUdateInfo = "updated";
             }
-            OnClickSnack("Success", $"Organization {editingOrg.Name} was {insertUpdateInfo}.", true);
+            OnClickSnack("Success", $"Organization {editingObj.Name} was {insertUdateInfo}.", true);
             await _organizationService.GetOrganizations();
-            _navigationManager.NavigateTo("organization");
+            _navigationManager.NavigateTo(returnHome);
         }
     }
 
@@ -123,41 +124,41 @@
     {
         var severityType = (Severity)Enum.Parse(typeof(Severity), severity, true);
         @if (!close)
-            Snackbar.Add(message, severityType, ConfigurationBinder => { ConfigurationBinder.ShowCloseIcon = false; });
-        Snackbar.Add(message, severityType);
+                _snackbar.Add(message, severityType, ConfigurationBinder => { ConfigurationBinder.ShowCloseIcon = false; });
+        _snackbar.Add(message, severityType);
 
     }
 
     protected override async Task OnInitializedAsync()
     {
         await _organizationService.GetOrganizations();
-        _organizationService.OnChange += StateHasChanged)();
+        _organizationService.OnChange += StateHasChanged;
     }
 
-    private void Dispose()
+    public void Dispose()
     {
-        _organizationService.OnChange -= StateHasChanged();
+        _organizationService.OnChange -= StateHasChanged;
     }
 
     private void EditOrganization(Organization organization)
     {
         organization.Editing = true;
-        editingOrg = organization;
+        editingObj = organization;
 
     }
 
     private async Task DeleteObject()
     {
-        if (editingOrg.id == null || editingOrg.id == 0)
+        if (editingObj.Id  == 0)
             return;
-        await _organizationService.DeleteOrganization(editingOrg.id);
+        await _organizationService.DeleteOrganization(editingObj.Id);
         await _organizationService.GetOrganizations();
-        _navigationManager.NavigateTo("organization");
+        _navigationManager.NavigateTo(returnHome);
     }
     private async Task CancelEditing()
     {
-        editingOrg = new Organization();
+        editingObj = new Organization();
         await _organizationService.GetOrganizations();
-        _navigationManager.NavigateTo("organization");
+        _navigationManager.NavigateTo(returnHome);
     }
 }

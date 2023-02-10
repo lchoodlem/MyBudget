@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.QuickGrid;
+using MyBudget.Shared;
 
 namespace MyBudget.Server.Services.AccountService
 {
@@ -92,6 +93,7 @@ namespace MyBudget.Server.Services.AccountService
             dbAccount.AcctNum = account.AcctNum;
             dbAccount.OrganizationId = account.OrganizationId;
             dbAccount.AcctTypeId = account.AcctTypeId;
+            dbAccount.Deleted = account.Deleted;// this is to allow reset
 
             await _context.SaveChangesAsync();
 

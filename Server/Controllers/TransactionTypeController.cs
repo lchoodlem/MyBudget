@@ -20,6 +20,13 @@ namespace MyBudget.Server.Controllers
             var result = await _transactionTypeService.GetTransactionTypes();
             return Ok(result);
         }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<AcctType>>> GetAccountType(int id)
+        {
+            var result = await _transactionTypeService.GetTransactionTypeById(id);
+            return Ok(result);
+
+        }
         [HttpDelete]
         public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> DeleteAccount(int id)
         {

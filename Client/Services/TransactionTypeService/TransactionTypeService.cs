@@ -39,10 +39,10 @@
             OnChange.Invoke();
         }
 
-        public async Task<ServiceResponse<TransactionType>> GetTransactionTypeById(int transactionTypeId)
+        public async Task<TransactionType> GetTransactionTypeById(int transactionTypeId)
         {
             var result = await _http.GetFromJsonAsync<ServiceResponse<TransactionType>>($"api/transactionType/{transactionTypeId}");
-            return result;
+            return result.Data;
         }
 
         public async Task<IEnumerable<TransactionType>> GetTransactionTypes()

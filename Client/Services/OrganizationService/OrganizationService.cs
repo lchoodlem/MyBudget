@@ -15,15 +15,18 @@
         public async Task<IEnumerable<Organization>> GetOrganizations()
         {
             var response = await _http.GetFromJsonAsync<ServiceResponse<List<Organization>>>("api/organization");
-            if(response != null && response.Data != null)
-                Organizations= response.Data;
+            if (response != null && response.Data != null)
+                Organizations = response.Data;
             return Organizations;
         }
 
-        public async Task<ServiceResponse<Organization>> GetOrganizationById(int organizationId)
+        public async Task<Organization> GetOrganizationById(int organizationId)
         {
-            var result = await _http.GetFromJsonAsync<ServiceResponse<Organization>>($"api/organization{organizationId}");
-            return result;
+            var returnOrg = new Organization();
+            var result = await _http.GetFromJsonAsync<ServiceResponse<Organization>>($"api/organization/{organizationId}");
+            if (result != null && result.Data != null)
+                return result.Data;
+            return returnOrg;
         }
 
         public async Task AddOrganization(Organization organization)
@@ -57,10 +60,10 @@
         public Organization CreateNewOrganization()
         {
             // stub out a new category for the form
-            var newOrganization = new Organization { IsNew = true, Editing = true};
+            var newOrganization = new Organization { IsNew = true, Editing = true };
             Organizations.Add(newOrganization);
-            OnChange.Invoke(); 
-            return newOrganization;  
+            OnChange.Invoke();
+            return newOrganization;
         }
     }
 }

@@ -7,7 +7,7 @@
 <MudDivider DividerType="DividerType.Middle"></MudDivider>
 <MudPaper Width="90%">
 
-    <MudTable Items="@TransactionTypes" Hover="true" CanCancelEdit="true" >
+    <MudTable Items="@TransactionTypes" Hover="true" CanCancelEdit="true">
         <HeaderContent>
             <MudTh>Id</MudTh>
             <MudTh>Type</MudTh>
@@ -16,10 +16,10 @@
             <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="Nr">@context.Id</MudTd>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
             <MudTd DataLabel="Sign">@context.TypeName</MudTd>
             <MudTd DataLabel="Name">@context.Debit</MudTd>
-            <MudTd DataLabel="Molar mass">@context.Description</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
             <MudTd DataLabel="Actions">
                 <MudButton OnClick="@((e) => EditObj(context))"
                            Variant="Variant.Text"
@@ -27,13 +27,6 @@
                            Color="Color.Default"
                            Style="text-transform:none"
                            Disabled=@disableEdit>
-                </MudButton>
-                <MudButton OnClick="@((e) => DeleteObj(context))"
-                           Variant="Variant.Text"
-                           EndIcon="@Icons.Material.Filled.Delete"
-                           Color="Color.Error"
-                           Style="text-transform:none"
-                           Disabled=false>
                 </MudButton>
             </MudTd>
         </RowTemplate>
@@ -75,16 +68,6 @@
         TransactionTypes = await _transactionTypeService.GetTransactionTypes();
         isLoading = false;
         StateHasChanged();
-    }
-
-    public async Task DeleteObj(TransactionType obj)
-    {
-        DeleteId = obj.Id;
-
-        //Delete
-        await _transactionTypeService.DeleteTransactionType(DeleteId);
-        await LoadObject();
-
     }
 
 
