@@ -24,10 +24,10 @@ namespace MyBudget.Client.Services.AccountService
 
         }
 
-        public async Task<ServiceResponse<Account>> GetAcctTypeById(int accountId)
+        public async Task<Account> GetAccountById(int accountId)
         {
             var result = await _http.GetFromJsonAsync<ServiceResponse<Account>>($"api/account/{accountId}");
-            return result;
+            return result.Data;
         }
 
         public async Task AddObject(Account obj)

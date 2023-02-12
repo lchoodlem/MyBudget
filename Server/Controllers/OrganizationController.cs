@@ -17,7 +17,7 @@ namespace MyBudget.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Organization>>> GetOrganizations()
+        public async Task<ActionResult<ServiceResponse<List<Organization>>>> GetOrganizations()
         {
             var result = await _orgainzationService.GetOrganizations();          
             return Ok(result);
@@ -29,7 +29,7 @@ namespace MyBudget.Server.Controllers
             return Ok(result);
 
         }
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<ActionResult<ServiceResponse<List<Organization>>>> DeleteOrganization(int id)
         {
             var result = await _orgainzationService.DeleteOrganization(id);

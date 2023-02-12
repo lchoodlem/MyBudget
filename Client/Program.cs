@@ -7,6 +7,8 @@ global using MyBudget.Client.Services.OrganizationService;
 global using MyBudget.Client.Services.TransactionTypeService;
 global using MyBudget.Shared;
 global using System.Net.Http.Json;
+
+global using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MyBudget.Client;

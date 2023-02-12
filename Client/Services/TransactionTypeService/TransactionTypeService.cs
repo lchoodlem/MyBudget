@@ -1,4 +1,6 @@
-﻿namespace MyBudget.Client.Services.TransactionTypeService
+﻿using MyBudget.Shared;
+
+namespace MyBudget.Client.Services.TransactionTypeService
 {
     public class TransactionTypeService : ITransactionTypeService
     {
@@ -23,7 +25,7 @@
 
         public TransactionType CreateNewTransactionType()
         {
-            // stub out a new category for the form
+            // stub out a new Trans Type for the form
             var newTransType = new TransactionType { IsNew = true, Editing = true };
             TransactionTypes.Add(newTransType);
             OnChange.Invoke();

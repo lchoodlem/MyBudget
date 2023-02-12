@@ -19,6 +19,14 @@
                 Organizations = response.Data;
             return Organizations;
         }
+        public async Task<List<Organization>> GetOrganizationsAsync()
+        {
+            var response = await _http.GetFromJsonAsync<ServiceResponse<List<Organization>>>("api/organization");
+            if (response != null && response.Data != null)
+                Organizations = response.Data;
+            return Organizations;
+        }
+
 
         public async Task<Organization> GetOrganizationById(int organizationId)
         {
@@ -65,5 +73,6 @@
             OnChange.Invoke();
             return newOrganization;
         }
+
     }
 }

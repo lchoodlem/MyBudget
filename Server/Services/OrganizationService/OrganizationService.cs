@@ -93,7 +93,9 @@ namespace MyBudget.Server.Services.OrganizationService
             dbOrganization.Name = organization.Name;
             dbOrganization.Phone1 = organization.Phone1;
             dbOrganization.Phone2 = organization.Phone2;
-            dbOrganization.Address1 = organization.Address2;
+            dbOrganization.Address1 = organization.Address1;
+            dbOrganization.Address2 = organization.Address2;
+            dbOrganization.Visible = organization.Visible;
             dbOrganization.Deleted = organization.Deleted;// this is to allow reset
 
 

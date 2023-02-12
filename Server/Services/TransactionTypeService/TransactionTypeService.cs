@@ -72,6 +72,7 @@ namespace MyBudget.Server.Services.TransactionTypeService
                 };
             }
             dbTransType.TypeName = transactionType.TypeName;
+            dbTransType.Debit = transactionType.Debit;
             dbTransType.Description= transactionType.Description;
             dbTransType.Visible = transactionType.Visible;
             dbTransType.Deleted = transactionType.Deleted;// this is to allow reset

@@ -21,26 +21,26 @@ namespace MyBudget.Server.Controllers
             return Ok(result);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<AcctType>>> GetAccountType(int id)
+        public async Task<ActionResult<ServiceResponse<AcctType>>> GetTransType(int id)
         {
             var result = await _transactionTypeService.GetTransactionTypeById(id);
             return Ok(result);
 
         }
-        [HttpDelete]
-        public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> DeleteAccount(int id)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> DeleteTransType(int id)
         {
             var result = await _transactionTypeService.DeleteTransactionType(id);
             return Ok(result);
         }
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> AddAccount(TransactionType transType)
+        public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> AddTransType(TransactionType transType)
         {
             var result = await _transactionTypeService.AddTransactionType(transType);
             return Ok(result);
         }
         [HttpPut]
-        public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> UpdateAccount(TransactionType transType)
+        public async Task<ActionResult<ServiceResponse<List<TransactionType>>>> UpdateTransType(TransactionType transType)
         {
             var result = await _transactionTypeService.UpdateTransactionType(transType);
             return Ok(result);
