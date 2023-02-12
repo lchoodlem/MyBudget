@@ -6,6 +6,7 @@
         List<AcctType> AcctTypes { get; set; }
 
         Task<IEnumerable<AcctType>> GetAcctTypes();
+        Task<List<AcctType>> GetAcctTypesAsync();
         Task<AcctType> GetAcctTypeById(int acctTypeId);
         Task AddObject(AcctType obj);
         Task DeleteObject(int id);

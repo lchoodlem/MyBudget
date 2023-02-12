@@ -25,6 +25,13 @@
                 AcctTypes = result.Data;
             return AcctTypes;
         }
+        public async Task<List<AcctType>> GetAcctTypesAsync()
+        {
+            var response = await _http.GetFromJsonAsync<ServiceResponse<List<AcctType>>>("api/acctType");
+            if(response != null && response.Data != null)
+            { AcctTypes =  response.Data; }
+            return AcctTypes;
+        }
 
         public async Task AddObject(AcctType obj)
         {
@@ -61,6 +68,7 @@
             await GetAcctTypes();
             OnChange.Invoke();
         }
+
 
     }
 }

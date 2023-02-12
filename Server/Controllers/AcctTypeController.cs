@@ -37,13 +37,13 @@ namespace MyBudget.Server.Controllers
             return Ok(result);
         }
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<AcctType>>>> AddAccount(AcctType accountType)
+        public async Task<ActionResult<ServiceResponse<List<AcctType>>>> AddAccountType(AcctType accountType)
         {
             var result = await _acctTypeService.AddAccountType(accountType);
             return Ok(result);
         }
         [HttpPut]
-        public async Task<ActionResult<ServiceResponse<List<AcctType>>>> UpdateAccount(AcctType accountType)
+        public async Task<ActionResult<ServiceResponse<List<AcctType>>>> UpdateAccountType(AcctType accountType)
         {
             var result = await _acctTypeService.UpdateAccountType(accountType);
             return Ok(result);

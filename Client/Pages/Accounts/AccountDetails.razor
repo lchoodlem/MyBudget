@@ -1,0 +1,252 @@
+﻿@page "/account/create"
+@page "/account/edit/{id:int}"
+
+@inject IAccountService _accountService
+@inject IOrganizationService _organizationService
+@inject IAcctTypeService _acctTypeService
+@inject ISnackbar _snackbar
+@inject NavigationManager _navigationManager
+@implements IDisposable
+
+
+
+
+@if (editingObj == null)
+{
+    <span>@message</span>
+}
+else
+{
+    if (!isLoading)
+    {
+
+        <MudText Typo="Typo.h3" Class="card-title text-primary mb-3 ml-3">@Title Account</MudText>
+        <MudForm Model="@editingObj" FieldChanged="@((e) => FormChanged(true))">
+            <MudGrid>
+                <MudItem xs="12" sm="7">
+                    <MudCard>
+                        <MudCardContent>
+                            <MudTextField Label="Account" HelperText="Min 10 chacters. *Requierd"
+                                  OnKeyPress="@((e) => FormChanged(true))"
+                                  @bind-Value="@editingObj.Name" For="@(() => @editingObj.Name)" />
+                            <MudTextField Label="Acct#" HelperText="...0000"
+                                  OnKeyPress="@((e) => FormChanged(true))"
+                                  @bind-Value="@editingObj.AcctNum" For="@(() => @editingObj.AcctNum)" />
+                            <select @bind="@editingObj.AcctTypeId" class="form-control">
+                                @foreach (var acctT in _acctTypeService.AcctTypes)
+                                {
+                                    <option value="@acctT.Id.ToString()">@acctT.Name</option>
+                                }
+                            </select>
+                            <select @bind="@editingObj.OrganizationId" class="form-control">
+                                @foreach (var org in _organizationService.Organizations)
+                                {
+                                    <option value="@org.Id.ToString()">@org.Name</option>
+                                }
+                            </select>
+                            <MudToggleIconButton @bind-Toggled="@editingObj.Visible"
+                                         Size="Size.Large"
+                                         Icon="@Icons.Material.Filled.VisibilityOff"
+                                         Color="Color.Error" Title="Invisible"
+                                         ToggledIcon="@Icons.Material.Filled.Visibility"
+                                         ToggledColor="@Color.Success" ToggledTitle="Visible" />
+                            <MudButton OnClick="@((e) => ToggleDelete())"
+                               Disabled="@ReadOnlyDel" Color="@activeColor">
+                                @(ReadOnlyDel ? "Active" : "Reset to Active")
+                            </MudButton>
+                            <MudDivider></MudDivider>
+                            <div>@(formChanged == true ? "Save changes?" : "")</div>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton OnClick="@((e) => CancelEditing())"
+                               Variant="Variant.Text"
+                               EndIcon="@Icons.Material.Filled.Cancel"
+                               Color="Color.Warning"
+                               Style="text-transform:none"
+                               Disabled=false>
+                            </MudButton>
+                            <MudButton OnClick="@((e) => UpsertObject())"
+                               Variant="Variant.Text"
+                               EndIcon="@Icons.Material.Outlined.Save"
+                               Color="Color.Success"
+                               Style="text-transform:none"
+                               Disabled=false>
+                            </MudButton>
+                            <div class="@(editingObj.Deleted ? "d-none" :"")">
+                                <MudButton OnClick="@((e) => DeleteObject())"
+                                   Variant="Variant.Text"
+                                   EndIcon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Style="text-transform:none"
+                                   Disabled=false>
+                                </MudButton>
+                            </div>
+                        </MudCardActions>
+                    </MudCard>
+
+                </MudItem>
+
+            </MudGrid>
+
+        </MudForm>
+
+    }
+    else
+    {
+        if (isLoading)
+        {
+            // loader....
+            <div class="text-center">
+                <img src="/images/ajax-loader.gif">
+            </div>
+        }
+        else
+        {
+            <p>No records found</p>
+        }
+    }
+
+}
+
+
+@code {
+    private string message { set; get; } = string.Empty;
+    [Parameter]
+    public int Id { get; set; }
+
+    private Account editingObj { get; set; } = new Account() { IsNew = true };
+    private string Title { get; set; } = "Create";
+    private bool isLoading { get; set; } = true;
+    private string insertUpdateInfo = "updated";
+    private string returnHome = "admin/0";
+    private bool formChanged { get; set; } = false;
+    private MudBlazor.Color activeColor { set; get; } = Color.Success;
+
+    private bool ReadOnlyDel { set; get; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //EditObject(editingObj);
+        if (firstRender)
+        {
+            if (Id == 0)
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+            else
+            {
+                //Update
+                Title = "Update";
+                await LoadObject();
+
+            }
+        }
+    }
+
+    private async Task LoadObject()
+    {
+        isLoading = true;
+        StateHasChanged();
+        editingObj = new Account() { IsNew = true };
+        editingObj = await _accountService.GetAccountById(Id);
+        ReadOnlyDel = !editingObj.Deleted;
+        if (ReadOnlyDel)
+            activeColor = Color.Error;
+        editingObj.IsNew = false;
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private void EditObject(Account obj)
+    {
+        obj.Editing = true;
+        ReadOnlyDel = true;
+        editingObj = obj;
+    }
+
+    private void ToggleDelete()
+    {
+        editingObj.Deleted = !editingObj.Deleted;
+        ReadOnlyDel = !editingObj.Deleted;
+        if (ReadOnlyDel)
+            activeColor = Color.Error;
+        formChanged = true;
+        _accountService.OnChange += StateHasChanged;
+    }
+
+    private void FormChanged(bool yesNo = false)
+    {
+        formChanged = yesNo;
+    }
+    private void ToggleChanged(bool toggled)
+    {
+        formChanged = toggled;
+    }
+    private async Task UpsertObject()
+    {
+        if (editingObj.Name == null || editingObj.Name == "")
+        {
+            OnClickSnack("Error", "Name is required", true);
+        }
+        else
+        {
+            if (editingObj.Id == 0)
+            {
+                // Create
+                await _accountService.AddObject(editingObj);
+                insertUpdateInfo = "updated";
+            }
+            else
+            {
+                await _accountService.UpdateObject(editingObj);
+                insertUpdateInfo = "updated";
+            }
+            OnClickSnack("Success", $"Account: {editingObj.Name} was {insertUpdateInfo}.", true);
+            await _accountService.GetAccounts();
+            _navigationManager.NavigateTo(returnHome);
+
+        }
+    }
+
+    private void OnClickSnack(string severity, string message, bool close = true)
+    {
+        var severityType = (Severity)Enum.Parse(typeof(Severity), severity, true);
+        @if (!close)
+            _snackbar.Add(message, severityType, ConfigurationBinder => { ConfigurationBinder.ShowCloseIcon = false; });
+        _snackbar.Add(message, severityType);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await _accountService.GetAccounts();
+        await _acctTypeService.GetAcctTypesAsync();
+        await _organizationService.GetOrganizationsAsync();
+        _accountService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        _accountService.OnChange -= StateHasChanged;
+    }
+
+
+    private async Task DeleteObject()
+    {
+        if (editingObj.Id == 0)
+            return;
+        await _accountService.DeleteObject(editingObj.Id);
+        await _accountService.GetAccounts();
+        _navigationManager.NavigateTo(returnHome);
+    }
+    private async Task CancelEditing()
+    {
+        editingObj = new Account();
+        await _accountService.GetAccounts();
+        _navigationManager.NavigateTo(returnHome);
+    }
+
+
+
+
+}

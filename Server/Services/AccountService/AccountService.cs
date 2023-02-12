@@ -93,6 +93,7 @@ namespace MyBudget.Server.Services.AccountService
             dbAccount.AcctNum = account.AcctNum;
             dbAccount.OrganizationId = account.OrganizationId;
             dbAccount.AcctTypeId = account.AcctTypeId;
+            dbAccount.Visible = account.Visible;
             dbAccount.Deleted = account.Deleted;// this is to allow reset
 
             await _context.SaveChangesAsync();

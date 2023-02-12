@@ -7,6 +7,7 @@
         List<Organization> Organizations { get; set; }
 
         Task<IEnumerable<Organization>> GetOrganizations();
+        Task<List<Organization>> GetOrganizationsAsync();
         Task<Organization> GetOrganizationById(int organizationId);
         Task AddOrganization(Organization organization);
         Task DeleteOrganization(int organizationId);

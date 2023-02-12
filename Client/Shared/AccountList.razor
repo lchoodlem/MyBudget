@@ -5,33 +5,71 @@
 <MudPaper Width="90%">
     <div class="row at-4">
         <div class="col-6">
-            <MudText Typo="Typo.h4" Class="card-title text-primary">Accounts</MudText>
+            <MudText Typo="Typo.h4" Class="card-title text-primary cardHeading">Accounts</MudText>
         </div>
         <MudDivider></MudDivider>
 
         <MudDivider DividerType="DividerType.Middle"></MudDivider>
-        <div class="col-4 offset-2">
-            <MudButton Variant="Variant.Filled" Size=Size.Medium
-                       Color="Color.Primary" Href="category/create">Add New Category</MudButton>
-        </div>
+
+        <MudButton Variant="Variant.Filled" Size=Size.Medium Style="float:right"
+                   Color="Color.Primary" Href="account/create">Add New Account</MudButton>
+
         <div class="col-12">
             @if (Accounts.Any())
             {
-                <MudTable Items="Accounts">
+                <MudTable Items="Accounts" Hover="true" SortLable="Sort By">
+                    <ColGroup>
+                        <col />
+                        <col style="width: 200px" />
+                        <col />
+                        <col />
+                        <col style="width: 200px" />
+                        <col />
+                        <col />
+                        <col />
+                    </ColGroup>
                     <HeaderContent>
-                        <MudTh>Id</MudTh>
-                        <MudTh>Name</MudTh>
-                        <MudTh>Acct#</MudTh>
-                        <MudTh>Type</MudTh>
-                        <MudTh>Org</MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Account,Object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Account,Object>(x=>x.Name)">NAme</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Account,Object>(x=>x.AcctNum)">AcctNum</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Account,Object>(x=>x.AcctType.Name)">Type</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Account,Object>(x=>x.Organization.Name)">Organization</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Account,Object>(x=>x.Visible)">Visible</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Account,Object>(x=>x.Deleted)">Active</MudTableSortLabel></MudTh>
                         <MudTh>Actions</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd DataLabel="Id">@context.Id</MudTd>
                         <MudTd DataLabel="Name">@context.Name</MudTd>
                         <MudTd DataLabel="Acct#">@context.AcctNum</MudTd>
+
                         <MudTd DataLabel="Type">@context.AcctType.Name</MudTd>
                         <MudTd DataLabel="Organization">@context.Organization.Name</MudTd>
+
+                        <MudTd DataLabel="Visible">
+                            @if (context.Visible)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Visibility"
+                                 Color="Color.Success" Title="@visibleTitle"></MudIcon>
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.VisibilityOff"
+                                 Color="Color.Error" Title="@inVisibleTitle"></MudIcon>
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Deleted">
+                            @if (context.Deleted)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ThumbDown"
+                                 Color="Color.Error" Title="@deletedTitle"></MudIcon>
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ThumbUp"
+                                 Color="Color.Success" Title="@activeTitle"></MudIcon>
+                            }
+                        </MudTd>
                         <MudTd DataLabel="Actions">
                             <MudButton OnClick="@((e) => EditObj(context))"
                                    Variant="Variant.Text"
@@ -41,23 +79,19 @@
                                    Disabled=@disableEdit>
 
                             </MudButton>
-                            <MudButton OnClick="@((e) => DeleteObj(context))"
-                                   Variant="Variant.Text"
-                                   EndIcon="@Icons.Material.Filled.Delete"
-                                   Color="Color.Error"
-                                   Style="text-transform:none"
-                                   Disabled=false>
-                            </MudButton>
                         </MudTd>
                     </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[]{50,100}" />
+                    </PagerContent>
                 </MudTable>
             }
             else
             {
                 if (isLoading)
                 {
-                    <div class="text-center">
-                        <img src="/images/loader.gif">
+                    <div class="loadingBox">
+                        <img src="/images/windows-xp-loading.gif">
                     </div>
                 }
                 else
@@ -74,6 +108,10 @@
 @code {
     private static IEnumerable<Account> Accounts = new List<Account>();
     private string objApi = "account";
+    private string visibleTitle = "Visible";
+    private string inVisibleTitle = "Invisible";
+    private string deletedTitle = "Inactive";
+    private string activeTitle = "Active";
 
     protected override async Task OnInitializedAsync()
     {

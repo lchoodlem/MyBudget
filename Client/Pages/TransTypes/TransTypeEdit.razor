@@ -1,10 +1,11 @@
-﻿@page "/accountType/edit/{id:int}"
-@page "/accountType/create"
-@inject IAcctTypeService _acctTypeService
+﻿@page "/transactiontype/create"
+@page "/transactiontype/edit/{id:int}"
+
+@inject ITransactionTypeService _transTypeService
 @implements IDisposable
 
-@inject ISnackbar _snackBar
-@inject IJSRuntime _jsRuntime
+
+@inject ISnackbar _snackbar
 @inject NavigationManager _navigationManager
 
 @if (editingObj == null)
@@ -13,24 +14,32 @@
 }
 else
 {
-
-    <MudText Typo="Typo.h3" Class="card-title text-primary mb-3 ml-3">@Title Account Type</MudText>
+    <MudText Typo="Typo.h3" Class="card-title text-primary mb-3 ml-3">@Title Transaction Type</MudText>
     <MudForm Model="@editingObj" FieldChanged="@((e) => FormChanged(true))">
-
         <MudGrid>
             <MudItem xs="12" sm="7">
                 <MudCard>
                     <MudCardContent>
-                        <MudTextField Label="Acct Type" HelperText="Min. 3 characters *Required" OnKeyPress="@((e) => FormChanged(true))"
-                                  @bind-Value="@editingObj.Name" For="@(() => @editingObj.Name)" />
-                        <MudToggleIconButton @bind-Toggled="@editingObj.Visible" 
+                        <MudTextField Label="Transaction Type" HelperText="Max 10 chacters. *Requierd"
+                                  OnKeyPress="@((e) => FormChanged(true))"
+                                  @bind-Value="@editingObj.TypeName" For="@(() => @editingObj.TypeName)" />
+                        <MudToggleIconButton @bind-Toggled="@editingObj.Debit"
                                          Size="Size.Large"
-                                         Icon="@Icons.Material.Filled.VisibilityOff" 
+                                         Icon="@Icons.Material.Filled.AttachMoney"
+                                         Color="Color.Success" Title="Deposit"
+                                         ToggledIcon="@Icons.Material.Filled.Payment"
+                                         ToggledColor="@Color.Error" ToggledTitle="Withdrawl" />
+                        <MudTextField Label="Description"
+                                  OnKeyPress="@((e) => FormChanged(true))"
+                                  @bind-Value="@editingObj.Description" For="@(() => @editingObj.Description)" />
+                        <MudToggleIconButton @bind-Toggled="@editingObj.Visible"
+                                         Size="Size.Large"
+                                         Icon="@Icons.Material.Filled.VisibilityOff"
                                          Color="Color.Error" Title="Invisible"
-                                         ToggledIcon="@Icons.Material.Filled.Visibility" 
+                                         ToggledIcon="@Icons.Material.Filled.Visibility"
                                          ToggledColor="@Color.Success" ToggledTitle="Visible" />
-                        <MudButton OnClick="@((e) => ToggleDelete())" 
-                                   Disabled="@ReadOnlyDel"  Color="@activeColor">
+                        <MudButton OnClick="@((e) => ToggleDelete())"
+                               Disabled="@ReadOnlyDel" Color="@activeColor">
                             @(ReadOnlyDel ? "Active" : "Reset to Active")
                         </MudButton>
                         <div>@(formChanged == true ? "Save changes?" : "")</div>
@@ -61,29 +70,33 @@ else
                         </div>
                     </MudCardActions>
                 </MudCard>
+
             </MudItem>
+
         </MudGrid>
+
     </MudForm>
 
 }
 
+
 @code {
-    private string message = string.Empty;
+    private string message { set; get; } = string.Empty;
     [Parameter]
     public int Id { get; set; }
-    private string returnHome = "admin/2";
 
-    private AcctType editingObj { get; set; } = new AcctType() { IsNew = true };
+    private TransactionType editingObj { get; set; } = new TransactionType() { IsNew = true };
     private string Title { get; set; } = "Create";
-    public bool isLoading { get; set; } = true;
-    private string insertUdateInfo = "updated";
-
+    private bool isLoading { get; set; } = true;
+    private string insertUpdateInfo = "updated";
+    private string returnHome = "admin/1";
     private bool formChanged { get; set; } = false;
-    private MudBlazor.Color activeColor { get; set; } = Color.Success;
+    private MudBlazor.Color activeColor { set; get; } = Color.Success;
 
-    private bool ReadOnlyDel { get; set; } = false;
+    private bool ReadOnlyDel { set; get; } = false;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        EditObject(editingObj);
         if (firstRender)
         {
             if (Id == 0)
@@ -96,17 +109,17 @@ else
                 //Update
                 Title = "Update";
                 await LoadObject();
+
             }
         }
     }
- 
 
     private async Task LoadObject()
     {
         isLoading = true;
         StateHasChanged();
-        editingObj = new AcctType() { IsNew = true };
-        editingObj = await _acctTypeService.GetAcctTypeById(Id);
+        editingObj = new TransactionType() { IsNew = true };
+        editingObj = await _transTypeService.GetTransactionTypeById(Id);
         ReadOnlyDel = !editingObj.Deleted;
         if (ReadOnlyDel)
             activeColor = Color.Error;
@@ -115,12 +128,11 @@ else
         StateHasChanged();
     }
 
-    private void EditObject(AcctType obj)
+    private void EditObject(TransactionType obj)
     {
         obj.Editing = true;
         ReadOnlyDel = true;
         editingObj = obj;
-
     }
 
     private void ToggleDelete()
@@ -130,21 +142,20 @@ else
         if (ReadOnlyDel)
             activeColor = Color.Error;
         formChanged = true;
-        _acctTypeService.OnChange += StateHasChanged;
+        _transTypeService.OnChange += StateHasChanged;
     }
 
     private void FormChanged(bool yesNo = false)
     {
-            formChanged = yesNo;
+        formChanged = yesNo;
     }
     private void ToggleChanged(bool toggled)
     {
         formChanged = toggled;
     }
-
     private async Task UpsertObject()
     {
-        if (editingObj.Name == null || editingObj.Name == "")
+        if (editingObj.TypeName == null || editingObj.TypeName == "")
         {
             OnClickSnack("Error", "Name is required", true);
         }
@@ -152,18 +163,19 @@ else
         {
             if (editingObj.Id == 0)
             {
-                //Create
-                await _acctTypeService.AddObject(editingObj);
-                insertUdateInfo = "created";
+                // Create
+                await _transTypeService.AddTransactionType(editingObj);
+                insertUpdateInfo = "updated";
             }
             else
             {
-                await _acctTypeService.UpdateObject(editingObj);
-                insertUdateInfo = "updated";
+                await _transTypeService.UpdateTransactionType(editingObj);
+                insertUpdateInfo = "updated";
             }
-            OnClickSnack("Success", $"Account Type {editingObj.Name} was {insertUdateInfo}.", true);
-            await _acctTypeService.GetAcctTypes();
+            OnClickSnack("Success", $"Transaction Type: {editingObj.TypeName} was {insertUpdateInfo}.", true);
+            await _transTypeService.GetTransactionTypes();
             _navigationManager.NavigateTo(returnHome);
+
         }
     }
 
@@ -171,34 +183,38 @@ else
     {
         var severityType = (Severity)Enum.Parse(typeof(Severity), severity, true);
         @if (!close)
-            _snackBar.Add(message, severityType, ConfigurationBinder => { ConfigurationBinder.ShowCloseIcon = false; });
-        _snackBar.Add(message, severityType);
+            _snackbar.Add(message, severityType, ConfigurationBinder => { ConfigurationBinder.ShowCloseIcon = false; });
+        _snackbar.Add(message, severityType);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        await _acctTypeService.GetAcctTypes(); ;
-        _acctTypeService.OnChange += StateHasChanged;
+        await _transTypeService.GetTransactionTypes();
+        _transTypeService.OnChange += StateHasChanged;
     }
 
     public void Dispose()
     {
-        _acctTypeService.OnChange -= StateHasChanged;
+        _transTypeService.OnChange -= StateHasChanged;
     }
+
 
     private async Task DeleteObject()
     {
         if (editingObj.Id == 0)
             return;
-        await _acctTypeService.DeleteObject(editingObj.Id);
-        await _acctTypeService.GetAcctTypes();
+        await _transTypeService.DeleteTransactionType(editingObj.Id);
+        await _transTypeService.GetTransactionTypes();
         _navigationManager.NavigateTo(returnHome);
     }
     private async Task CancelEditing()
     {
-        editingObj = new AcctType();
-        await _acctTypeService.GetAcctTypes();
+        editingObj = new TransactionType();
+        await _transTypeService.GetTransactionTypes();
         _navigationManager.NavigateTo(returnHome);
     }
+
+
+
 
 }

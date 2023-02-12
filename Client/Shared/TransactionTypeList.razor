@@ -1,38 +1,102 @@
-﻿@inject HttpClient Http
-@inject NavigationManager _navigationManger
+﻿@inject NavigationManager _navigationManger
 @inject ITransactionTypeService _transactionTypeService
 
-<MudText Typo="Typo.h3">Transaction Types</MudText>
-<MudDivider></MudDivider>
-<MudDivider DividerType="DividerType.Middle"></MudDivider>
 <MudPaper Width="90%">
+    <div class="row at-4">
+        <div class="col-6">
+            <MudText Typo="Typo.h4" Class="card-title text-primary">Tranaction Types</MudText>
+        </div>
+        <MudDivider></MudDivider>
+        <MudDivider DividerType="DividerType.Middle"></MudDivider>
+        <div class="col-12 offset=10">
+            <MudButton Variant="Variant.Filled" Size=Size.Medium Style="float:right"
+                       Color="Color.Primary" Href="transactiontype/create">Add New Trans Type</MudButton>
+        </div>
+        <div class="col-12">
+            @if (TransactionTypes.Any())
+            {
+                <MudTable Items="@TransactionTypes" Hover="true" CanCancelEdit="true">
+                    <ColGroup>
+                        <col/>
+                        <col style="width: 180px"/>
+                        <col />
+                        <col style="width: 200px"/>
+                        <col />
+                        <col />
+                        <col />
+                    </ColGroup>
+                    <HeaderContent>
+                        <MudTh>Id</MudTh>
+                        <MudTh>Type</MudTh>
+                        <MudTh>(-/+)</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Visible</MudTh>
+                        <MudTh>Active</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
+                        <MudTd DataLabel="Sign">@context.TypeName</MudTd>
+                        <MudTd DataLabel="(-/+)">
+                            @if (context.Debit)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Payment"
+                                         Color="Color.Error" Title="@pymtTitle"></MudIcon>
+                            } else{
+                                <MudIcon Icon="@Icons.Material.Filled.AttachMoney"
+                                         Color="Color.Success" Title="@creditTitle"></MudIcon>
+                            }                                                      
+                        </MudTd>
+                        <MudTd DataLabel="Description">@context.Description</MudTd>
+                        <MudTd DataLabel="Visible">
+                            @if(context.Visible)
+                            {
+                            <MudIcon Icon="@Icons.Material.Filled.Visibility"
+                                 Color="Color.Success" Title="@visibleTitle"></MudIcon>
+                            } else{
+                            <MudIcon Icon="@Icons.Material.Filled.VisibilityOff"
+                                 Color="Color.Error" Title="@inVisibleTitle"></MudIcon>
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Deleted">
+                            @if (context.Deleted)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ThumbDown"
+                                 Color="Color.Error" Title="@deletedTitle"></MudIcon>
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ThumbUp"
+                                 Color="Color.Success" Title="@activeTitle"></MudIcon>
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Actions">
+                            <MudButton OnClick="@((e) => EditObj(context))"
+                                   Variant="Variant.Text"
+                                   EndIcon="@Icons.Material.Outlined.Edit"
+                                   Color="Color.Default"
+                                   Style="text-transform:none">
+                            </MudButton>
+                        </MudTd>
+                    </RowTemplate>
 
-    <MudTable Items="@TransactionTypes" Hover="true" CanCancelEdit="true">
-        <HeaderContent>
-            <MudTh>Id</MudTh>
-            <MudTh>Type</MudTh>
-            <MudTh>(-/+)</MudTh>
-            <MudTh>Description</MudTh>
-            <MudTh>Actions</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Id">@context.Id</MudTd>
-            <MudTd DataLabel="Sign">@context.TypeName</MudTd>
-            <MudTd DataLabel="Name">@context.Debit</MudTd>
-            <MudTd DataLabel="Description">@context.Description</MudTd>
-            <MudTd DataLabel="Actions">
-                <MudButton OnClick="@((e) => EditObj(context))"
-                           Variant="Variant.Text"
-                           EndIcon="@Icons.Material.Outlined.Edit"
-                           Color="Color.Default"
-                           Style="text-transform:none"
-                           Disabled=@disableEdit>
-                </MudButton>
-            </MudTd>
-        </RowTemplate>
-
-    </MudTable>
-
+                </MudTable>
+            }
+            else
+            {
+                if (isLoading)
+                {
+                    <div class="loadingBox">
+                        <img src="/images/windows-xp-loading.gif">
+                    </div>
+                }
+                else
+                {
+                    <p>No Records Found</p>
+                }
+            }
+        </div>
+    </div>
 </MudPaper>
 
 
@@ -40,6 +104,13 @@
 @code {
     private static IEnumerable<TransactionType> TransactionTypes = new List<TransactionType>();
     private string objApi = "transactionType";
+
+    private string pymtTitle = "Payment";
+    private string creditTitle = "Deposit";
+    private string visibleTitle = "Visible";
+    private string inVisibleTitle = "Invisible";
+    private string deletedTitle = "Inactive";
+    private string activeTitle = "Active";
 
 
     protected override async Task OnInitializedAsync()

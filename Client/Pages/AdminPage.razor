@@ -1,10 +1,11 @@
 ﻿@page "/admin"
+@page "/admin/{tabId:int}"
 
-<MudText Typo="Typo.h3">Administration</MudText>
+<MudText Typo="Typo.h3" Class="adminTitle">Administration</MudText>
 
 <MudDivider DividerType="DividerType.Middle"></MudDivider>
 
-<MudTabs Elevation="4" Rounded="true" AlwaysShowScrollButtons="true" Color="@Color.Info" Class="mt-4">
+<MudTabs Elevation="4" Rounded="true" Outlined="true" @bind-ActivePanelIndex="activeIndex" AlwaysShowScrollButtons="true" Color="@Color.Info" Class="mt-4">
     <MudTabPanel Tag="1" Text="Accounts"><AccountList></AccountList></MudTabPanel>
     <MudTabPanel Tag="2" Text="Transaction Types"><TransactionTypeList></TransactionTypeList></MudTabPanel>
     <MudTabPanel Tag="3" Text="Account Types"><AccountTypeList></AccountTypeList></MudTabPanel>
@@ -15,5 +16,21 @@
 
 
 @code {
-    
+    [Parameter]
+    public int tabId { get; set; }
+
+    private int activeIndex = 0;
+
+    protected override void OnInitialized()
+    {
+        // 5 tabs right now to not exceed
+        if(tabId == 0 || tabId > 5)
+        {
+            activeIndex = 0; // go to default Tab
+        } else
+        {
+            activeIndex = tabId;
+        }
+
+    }
 }

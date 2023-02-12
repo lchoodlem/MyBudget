@@ -7,7 +7,7 @@
 @inject IJSRuntime _jsRuntime
 @inject NavigationManager _navigationManager
 
-<h3>Organization Edit</h3>
+<MudText Typo="Typo.h3" Class="card-title text-primary mb-3 ml-3">@Title Organization</MudText>
 <MudPaper Class="pa-16 ma-2" Elevation="3">
     <EditForm Model="@editingObj">
         <DataAnnotationsValidator />
@@ -16,15 +16,31 @@
                 <MudCard>
                     <MudCardContent>
                         <MudTextField Label="Organization Name"
+                                      OnKeyPress="@((e) => FormChanged(true))"
                                       @bind-Value="@editingObj.Name" For="@(() => @editingObj.Name)" />
                         <MudTextField Label="Phone1" Class="mt-3"
+                                      OnKeyPress="@((e) => FormChanged(true))"
                                       @bind-Value="@editingObj.Phone1" For="@(() => @editingObj.Phone1)" InputType="InputType.Telephone" />
                         <MudTextField Label="Phone2" Class="mt-3"
+                                      OnKeyPress="@((e) => FormChanged(true))"
                                       @bind-Value="@editingObj.Phone2" For="@(() => @editingObj.Phone2)" InputType="InputType.Telephone" />
                         <MudTextField Label="Address1" Class="mt-3"
+                                      OnKeyPress="@((e) => FormChanged(true))"
                                       @bind-Value="@editingObj.Address1" For="@(() => @editingObj.Address1)" />
                         <MudTextField Label="Address2" Class="mt-3"
+                                      OnKeyPress="@((e) => FormChanged(true))"
                                       @bind-Value="@editingObj.Address2" For="@(() => @editingObj.Address1)" />
+                        <MudToggleIconButton @bind-Toggled="@editingObj.Visible"
+                                             Size="Size.Large"
+                                             Icon="@Icons.Material.Filled.VisibilityOff"
+                                             Color="Color.Error" Title="Invisible"
+                                             ToggledIcon="@Icons.Material.Filled.Visibility"
+                                             ToggledColor="@Color.Success" ToggledTitle="Visible" />
+                        <MudButton OnClick="@((e) => ToggleDelete())"
+                                   Disabled="@ReadOnlyDel" Color="@activeColor">
+                            @(ReadOnlyDel ? "Active" : "Reset to Active")
+                        </MudButton>
+                        <div>@(formChanged == true ? "Save changes?" : "")</div>
                     </MudCardContent>
                     <MudCardActions>
                         <MudButton OnClick="@((e) => CancelEditing())"
@@ -63,8 +79,12 @@
     private Organization editingObj { get; set; } = new Organization() { IsNew = true };
     private string Title { get; set; } = "Create";
     private bool isLoading { get; set; } = true;
-    private string insertUdateInfo = "updated";
-    private string returnHome = "admin";
+    private string insertUpdateInfo = "updated";
+    private string returnHome = "admin/5";
+    private bool formChanged { get; set; } = false;
+    private MudBlazor.Color activeColor { set; get; } = Color.Success;
+
+    private bool ReadOnlyDel { set; get; } = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -89,12 +109,33 @@
     {
         isLoading = true;
         StateHasChanged();
+        editingObj = new Organization() { IsNew = true };
         editingObj = await _organizationService.GetOrganizationById(id);
+        ReadOnlyDel = !editingObj.Deleted;
+        if (ReadOnlyDel)
+            activeColor = Color.Error;
         editingObj.IsNew = false;
         isLoading = false;
         StateHasChanged();
     }
+    private void FormChanged(bool yesNo = false)
+    {
+        formChanged = yesNo;
+    }
+    private void ToggleChanged(bool toggled)
+    {
+        formChanged = toggled;
+    }
 
+    private void ToggleDelete()
+    {
+        editingObj.Deleted = !editingObj.Deleted;
+        ReadOnlyDel = !editingObj.Deleted;
+        if (ReadOnlyDel)
+            activeColor = Color.Error;
+        formChanged = true;
+        _organizationService.OnChange += StateHasChanged;
+    }
     private async Task UpsertObject()
     {
         if (editingObj.Name == null || editingObj.Name == "")
@@ -107,14 +148,14 @@
             {
                 //Create
                 await _organizationService.AddOrganization(editingObj);
-                insertUdateInfo = "created";
+                insertUpdateInfo = "created";
             }
             else
             {
                 await _organizationService.UpdateOrganization(editingObj);
-                insertUdateInfo = "updated";
+                insertUpdateInfo = "updated";
             }
-            OnClickSnack("Success", $"Organization {editingObj.Name} was {insertUdateInfo}.", true);
+            OnClickSnack("Success", $"Organization {editingObj.Name} was {insertUpdateInfo}.", true);
             await _organizationService.GetOrganizations();
             _navigationManager.NavigateTo(returnHome);
         }

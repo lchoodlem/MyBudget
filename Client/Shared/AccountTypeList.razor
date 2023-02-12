@@ -11,8 +11,8 @@
         <MudDivider></MudDivider>
         <MudDivider DividerType="DividerType.Middle"></MudDivider>
         <div class="col-4 offset-2">
-            <MudButton Variant="Variant.Filled" Size=Size.Medium
-                       Color="Color.Primary" Href="acctType/create">Add New Account Type</MudButton>
+            <MudButton Variant="Variant.Filled" Size=Size.Medium Style="float:right"
+                       Color="Color.Primary" Href="accountType/create">Add New Account Type</MudButton>
         </div>
         <div class="col-12">
             @if (AcctTypes.Any())
@@ -55,8 +55,8 @@
                 if (isLoading)
                 {
                     // loader....
-                    <div class="text-center">
-                        <img src="/images/ajax-loader.gif">
+                    <div class="loadingBox">
+                        <img src="/images/windows-xp-loading.gif">
                     </div>
                 }
                 else
@@ -71,7 +71,7 @@
 
 @code {
     private IEnumerable<AcctType> AcctTypes = new List<AcctType>();
-    private string objApi = "acctType";
+    private string objApi = "accountType";
 
     protected override async Task OnInitializedAsync()
     {
@@ -106,7 +106,7 @@
         EditId = obj.Id;
 
         //Update
-        _navigationManger.NavigateTo($"{objApi}/edit/{EditId}");
+        _navigationManger.NavigateTo($"{objApi}/edit/{EditId}?returnUrl=@NavigationManager.ToBaseRelativePath(NavigationManager.Uri/3)");
         await LoadObject();
 
     }
