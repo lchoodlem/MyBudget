@@ -43,7 +43,7 @@ namespace MyBudget.Server.Services.OrganizationService
                 return new ServiceResponse<List<Organization>>
                 {
                     Success = false,
-                    Message = "Account not found"
+                    Message = "Organization not found"
                 };
             }
             dbOrganization.Deleted = true;
