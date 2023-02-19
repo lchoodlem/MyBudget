@@ -21,7 +21,7 @@ namespace MyBudget.Server.Controllers
             return Ok(result);
         }
         [HttpGet("{acctId}")]
-        public async Task<ActionResult<ServiceResponse<AcctType>>> GetAcocuntById(int acctId)
+        public async Task<ActionResult<ServiceResponse<Account>>> GetAcocuntById(int acctId)
         {
             var result = await _accountService.GetAccountById(acctId);
             return Ok(result);

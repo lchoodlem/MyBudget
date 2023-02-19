@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyBudget.Server.Data;
 
@@ -11,9 +12,11 @@ using MyBudget.Server.Data;
 namespace MyBudget.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230217234437_BudgetYearTable")]
+    partial class BudgetYearTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,13 +165,7 @@ namespace MyBudget.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("CurrentYear")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("ReconcileBalanceId")
+                    b.Property<int>("ReconcileBalanceId")
                         .HasColumnType("int");
 
                     b.Property<string>("Year")
@@ -594,7 +591,9 @@ namespace MyBudget.Server.Migrations
                 {
                     b.HasOne("MyBudget.Shared.ReconcileBalance", "Balances")
                         .WithMany()
-                        .HasForeignKey("ReconcileBalanceId");
+                        .HasForeignKey("ReconcileBalanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Balances");
                 });

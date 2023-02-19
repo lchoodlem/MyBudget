@@ -1,8 +1,52 @@
-﻿<MudNavMenu>
+﻿
+@inject BudgetYearService _budgetYearService
+
+<MudNavMenu>
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
     <MudNavLink Href="admin" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Administraion</MudNavLink>
-    
+    @foreach(var yr in yrList)
+    {
+        <MudNavGroup Title=yr.Year >
+
+            <MudNavLink Href="admin" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Administraion</MudNavLink>
+        </MudNavGroup>
+    }
     @*
     <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
     <MudNavLink Href="fetchdata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Fetch data</MudNavLink>*@
 </MudNavMenu>
+
+@code{
+    [CascadingParameter]
+    public int myYear { get; set; }
+    [CascadingParameter]
+    public int myMonth { get; set; }
+
+    public bool isLoading { get; set; } = true;
+    private List<BudgetYear> yrList = new();
+
+    private MudBlazor.Color activeColor { get; set; } = Color.Success;
+
+    private bool ReadOnlyDel { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var defaultYear = new DateOnly().Year;
+            yrList = await _budgetYearService.GetBudgetYearsAsync();
+            if(yrList.Count > 0)
+            {
+                
+            }
+            else
+            {
+                yrList.Add(new BudgetYear
+                {
+                    Year = "Empty"
+                });
+            }
+
+        }
+    }
+}

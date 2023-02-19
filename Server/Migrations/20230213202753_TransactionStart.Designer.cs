@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyBudget.Server.Data;
 
@@ -11,9 +12,11 @@ using MyBudget.Server.Data;
 namespace MyBudget.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230213202753_TransactionStart")]
+    partial class TransactionStart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,34 +155,6 @@ namespace MyBudget.Server.Migrations
                             Name = "Bank",
                             Visible = true
                         });
-                });
-
-            modelBuilder.Entity("MyBudget.Shared.BudgetYear", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("CurrentYear")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("ReconcileBalanceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Year")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReconcileBalanceId");
-
-                    b.ToTable("BudgetYears");
                 });
 
             modelBuilder.Entity("MyBudget.Shared.Organization", b =>
@@ -367,35 +342,35 @@ namespace MyBudget.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("AmountIn")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("AmountIn")
+                        .HasColumnType("float");
 
-                    b.Property<decimal>("AmountTotal")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("AmountTotal")
+                        .HasColumnType("float");
 
                     b.Property<DateTime>("LastBankDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("LastBankValue")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("LastBankValue")
+                        .HasColumnType("float");
 
                     b.Property<int>("Month")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("MonthBudgetIn")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("MonthBudgetIn")
+                        .HasColumnType("float");
 
-                    b.Property<decimal>("MonthBudgetOut")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("MonthBudgetOut")
+                        .HasColumnType("float");
 
-                    b.Property<decimal>("MonthReconcileIn")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("MonthReconcileIn")
+                        .HasColumnType("float");
 
-                    b.Property<decimal>("MonthReconcileOut")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("MonthReconcileOut")
+                        .HasColumnType("float");
 
-                    b.Property<decimal>("MonthReconcileTotal")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("MonthReconcileTotal")
+                        .HasColumnType("float");
 
                     b.Property<bool>("Reconciled")
                         .HasColumnType("bit");
@@ -588,15 +563,6 @@ namespace MyBudget.Server.Migrations
                     b.Navigation("AcctType");
 
                     b.Navigation("Organization");
-                });
-
-            modelBuilder.Entity("MyBudget.Shared.BudgetYear", b =>
-                {
-                    b.HasOne("MyBudget.Shared.ReconcileBalance", "Balances")
-                        .WithMany()
-                        .HasForeignKey("ReconcileBalanceId");
-
-                    b.Navigation("Balances");
                 });
 
             modelBuilder.Entity("MyBudget.Shared.StartDateAmount", b =>

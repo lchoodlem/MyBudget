@@ -1,10 +1,15 @@
 ﻿
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.JSInterop.Infrastructure;
 using MyBudget.Server.Controllers;
 
 namespace MyBudget.Server.Data
 {
     public class DataContext : DbContext
     {
+
+        // dotnet ef migrations add <<<SomeName>>>
+        // dotnet ef database update
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
 
@@ -189,7 +194,9 @@ namespace MyBudget.Server.Data
         public DbSet<AcctType> AcctTypes { get; set; }
         public DbSet<Organization> Organizations { get; set; }
         public DbSet<Account> Accounts { get; set; }
-
-
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<ReconcileBalance> ReconcileBalances { get; set;}
+        public DbSet<StartDateAmount> StartDateAmounts { get; set;}    
+        public DbSet<BudgetYear> BudgetYears { get; set;}
     }
 }
