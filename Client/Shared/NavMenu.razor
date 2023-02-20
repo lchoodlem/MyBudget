@@ -1,33 +1,50 @@
-﻿
-@inject BudgetYearService _budgetYearService
+﻿@using System.Globalization;
+@inject IBudgetYearService _budgetYearService
 
 <MudNavMenu>
-    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
     <MudNavLink Href="admin" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Administraion</MudNavLink>
-    @foreach(var yr in yrList)
+    <MudDivider Class="my-2" />
+    <MudText Typo="Typo.h6" Class="px-4">Budget Years</MudText>
+    <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Monthly Transactions</MudText>
+    @if (yrList.Count > 0)
     {
-        <MudNavGroup Title=yr.Year >
+        @foreach (var yr in yrList)
+        {
+            <MudNavGroup Title="@yr.Year" Expanded="false">
+                @foreach (var thisMth in mthMenus.Where((m) => m.menuYear == yr.Year))
+                { 
+                  <MudNavLink Href="@thisMth.mthHref">@thisMth.menuMth</MudNavLink>
+                }
+            </MudNavGroup>
+        }
 
-            <MudNavLink Href="admin" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Administraion</MudNavLink>
-        </MudNavGroup>
     }
-    @*
-    <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
-    <MudNavLink Href="fetchdata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Fetch data</MudNavLink>*@
 </MudNavMenu>
 
-@code{
+@code {
     [CascadingParameter]
-    public int myYear { get; set; }
+    public int yearBudget { get; set; }
     [CascadingParameter]
-    public int myMonth { get; set; }
+    public int monthBudget { get; set; }
 
     public bool isLoading { get; set; } = true;
-    private List<BudgetYear> yrList = new();
+    private List<BudgetYear>? yrList = new();
+
+    private string mthName { get; set; } = string.Empty;
+    private string currYearMth { get; set; } = string.Empty;
 
     private MudBlazor.Color activeColor { get; set; } = Color.Success;
 
     private bool ReadOnlyDel { get; set; } = false;
+
+    public class MthMenuObj
+    {
+        public string menuYear { get; set; } = string.Empty;
+        public string menuMth { get; set; } = string.Empty;
+        public string mthHref { get; set; } = string.Empty;
+        public int menuMthInt { get; set; } = 1;
+    }
+    private List<MthMenuObj> mthMenus { get; set; } = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -35,18 +52,59 @@
         {
             var defaultYear = new DateOnly().Year;
             yrList = await _budgetYearService.GetBudgetYearsAsync();
-            if(yrList.Count > 0)
+            if (yrList.Count > 0)
             {
-                
+                yrList.ForEach((yr) =>
+                {
+                    yr.YearUrl = $"/year/{yr.Year}";
+                    LoadMenus(yr);
+
+                });
+
+                StateHasChanged();
             }
             else
             {
                 yrList.Add(new BudgetYear
-                {
-                    Year = "Empty"
-                });
+                    {
+                        Year = "Empty"
+                    });
             }
 
         }
     }
+
+    private void LoadMenus(BudgetYear currYr)
+    {
+        @for (var i = 1; i < 13; i++)
+        {  //$"/year/{yr.Year}"
+
+            MthMenuObj thisMth = new MthMenuObj
+                {
+                    menuYear = currYr.Year,
+                    menuMth = @getMTH(currYr.Year, i),
+                    mthHref = currYr.YearUrl + $"/month/{i}",
+                    menuMthInt = i
+                };
+            mthMenus.Add(thisMth);
+        }
+
+    }
+
+
+    private string getMTH(string year, int iMth)
+    {
+        int thisYear = Int32.Parse(year);
+        string thisMMM = string.Empty;
+
+        DateTime mth = new DateTime(thisYear, iMth, 1);
+        thisMMM = mth.ToString("MMM");
+        return thisMMM;
+        StateHasChanged();
+        // Console.WriteLine(mth.ToString("MMM"));
+        //mth = mth.AddMonths(1);
+    }
+
 }
+
+

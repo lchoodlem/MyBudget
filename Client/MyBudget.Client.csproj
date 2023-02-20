@@ -19,8 +19,4 @@
 		<ProjectReference Include="..\Shared\MyBudget.Shared.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Pages\Transactions\" />
-	</ItemGroup>
-
 </Project>

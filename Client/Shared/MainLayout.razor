@@ -1,4 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@page "/yearMenu"
+@page "/yearMenu/{yearBudget:int}"
+@page "/yearMenu/{yearBudget:int}/month/{monthBudget:int}"
+
+@inherits LayoutComponentBase
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -14,7 +18,7 @@
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">Years</MudText>
+  
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
@@ -26,6 +30,10 @@
 </MudLayout>
 
 @code {
+    [Parameter]
+    public int yearBudget { get; set; }
+    [Parameter]
+    public int monthBudget { get; set; }
     bool _drawerOpen = true;
 
     void DrawerToggle()
