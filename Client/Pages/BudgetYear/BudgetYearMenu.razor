@@ -1,0 +1,53 @@
+﻿@inject IBudgetYearService _budgetYearService
+
+<MudText Typo="Typo.h6">Budget by Years</MudText>
+
+<MudTabs Outlined="true" Position="Position.Left" Rounded="true" Border="true"
+         ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
+    @foreach (var yr in yrList)
+    {
+        <MudTabPanel Text=@yr.Year>            
+                <MudText>@yr.Year</MudText>
+                <MyBudget.Client.Pages.Transactions.MonthlyTransactions></MyBudget.Client.Pages.Transactions.MonthlyTransactions>
+        </MudTabPanel>
+
+    }
+</MudTabs>
+
+
+
+
+@code {
+    [Parameter]
+    public int yearBudget { get; set; }
+    [Parameter]
+    public int monthBudget { get; set; }
+
+    public bool isLoading { get; set; } = true;
+    private List<BudgetYear> yrList = new();
+
+    private MudBlazor.Color activeColor { get; set; } = Color.Success;
+
+    private bool ReadOnlyDel { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var defaultYear = new DateOnly().Year;
+            yrList = await _budgetYearService.GetBudgetYearsAsync();
+            if (yrList.Count > 0)
+            {
+
+            }
+            else
+            {
+                yrList.Add(new BudgetYear
+                    {
+                        Year = "Empty"
+                    });
+            }
+
+        }
+    }
+}

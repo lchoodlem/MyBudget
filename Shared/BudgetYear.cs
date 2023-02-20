@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,5 +16,7 @@ namespace MyBudget.Shared
 
         public bool Deleted { get; set; }
         public bool CurrentYear { get; set; }
+        [NotMapped]
+        public string YearUrl { get; set; } = string.Empty;
     }
 }

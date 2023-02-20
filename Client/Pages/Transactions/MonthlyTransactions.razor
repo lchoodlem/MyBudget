@@ -1,0 +1,58 @@
+﻿
+
+<MudText Typo="Typo.h6">Monthly</MudText>
+
+<MudTabs Outlined="true" Position="Position.Left" Rounded="true" Border="true"
+         ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
+    @foreach (var mth in tabMonth)
+    {
+        <MudTabPanel Text=mth>
+            <MudText>@monthBudget for @yearBudget</MudText>
+        </MudTabPanel>
+
+    }
+</MudTabs>
+
+@code {
+    [CascadingParameter]
+    public int yearBudget { get; set; }
+    [CascadingParameter]
+    public int monthBudget { get; set; } // this is the current month (current tab)
+
+    private bool isLoading { get; set; } = false;
+
+    private IEnumerable<TabMonth> tabMonth = new List<TabMonth>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //EditObject(editingObj);
+        if (firstRender)
+        {
+            if (yearBudget == 0)
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+            else
+            {
+                
+                await LoadMonthly();
+
+            }
+        }
+    }
+    private async Task LoadMonthly()
+    {
+        isLoading = true;
+        StateHasChanged();
+        //editingObj = new Account() { IsNew = true };
+        //editingObj = await _accountService.GetAccountById(Id);
+        //ReadOnlyDel = !editingObj.Deleted;
+        //if (ReadOnlyDel)
+        //    activeColor = Color.Error;
+        //editingObj.IsNew = false;
+        isLoading = false;
+        StateHasChanged();
+    }
+
+}

@@ -1,7 +1,8 @@
-﻿@inject IStartDateAmountService AcctTypeService
+﻿
 @inject IDialogService DialogService
 @inject NavigationManager _navigationManger
 @inject IJSRuntime _jsRuntime
+@inject IAcctTypeService _accountTypeService
 
 <MudPaper Width="90%" Square="true">
     <div class="row at-4">
@@ -75,7 +76,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await AcctTypeService.GetAcctTypes();
+        await _accountTypeService.GetAcctTypes();
     }
 
     private int DeleteId { get; set; } = 0;
@@ -96,7 +97,7 @@
     {
         isLoading = true;
         StateHasChanged();
-        AcctTypes = await AcctTypeService.GetAcctTypes();
+        AcctTypes = await _accountTypeService.GetAcctTypes();
         isLoading = false;
         StateHasChanged();
     }

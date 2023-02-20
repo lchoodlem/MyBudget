@@ -15,7 +15,7 @@ namespace MyBudget.Shared
         [Required]
         public int Id { get; set; }
         [Required]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public bool Visible { get; set; } = true;
         public bool Deleted { get; set; } = false;
         [NotMapped]
