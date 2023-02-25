@@ -89,7 +89,9 @@ else
     private string Title { get; set; } = "Create";
     private bool isLoading { get; set; } = true;
     private string insertUpdateInfo = "updated";
-    private string returnHome = "admin/3";
+
+    private int tabId { get; set; } = (int)TabAdmin.TransTypes;
+    private string returnHome = "admin";
     private bool formChanged { get; set; } = false;
     private MudBlazor.Color activeColor { set; get; } = Color.Success;
 
@@ -174,7 +176,7 @@ else
             }
             OnClickSnack("Success", $"Transaction Type: {editingObj.TypeName} was {insertUpdateInfo}.", true);
             await _transTypeService.GetTransactionTypes();
-            _navigationManager.NavigateTo(returnHome);
+            _navigationManager.NavigateTo(returnHome + "/" + tabId);
 
         }
     }
@@ -205,13 +207,13 @@ else
             return;
         await _transTypeService.DeleteTransactionType(editingObj.Id);
         await _transTypeService.GetTransactionTypes();
-        _navigationManager.NavigateTo(returnHome);
+        _navigationManager.NavigateTo(returnHome + "/" + tabId);
     }
     private async Task CancelEditing()
     {
         editingObj = new TransactionType();
         await _transTypeService.GetTransactionTypes();
-        _navigationManager.NavigateTo(returnHome);
+        _navigationManager.NavigateTo(returnHome + "/" + tabId);
     }
 
 

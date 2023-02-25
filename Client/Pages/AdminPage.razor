@@ -4,34 +4,49 @@
 <MudText Typo="Typo.h3" Class="adminTitle">Administration</MudText>
 
 <MudDivider DividerType="DividerType.Middle"></MudDivider>
+@if (isLoading)
+{
+    <div id="app" class="loadingBox">
+        <img src="/images/loader.gif" />
+    </div>
 
-<MudTabs Elevation="4" Rounded="true" Outlined="true" @bind-ActivePanelIndex="activeIndex" AlwaysShowScrollButtons="true" Color="@Color.Info" Class="mt-4">
-    <MudTabPanel Tag="TabAdmin.BudgetYears" Text="Budget Years"></MudTabPanel>
-    <MudTabPanel Tag="TabAdmin.Organizations" Text="Organizations"><OrganizationList></OrganizationList></MudTabPanel>
-    <MudTabPanel Tag="TabAdmin.Accounts" Text="Accounts"><AccountList></AccountList></MudTabPanel>
-    <MudTabPanel Tag="TabAdmin.TransTypes" Text="Transaction Types"><TransactionTypeList></TransactionTypeList></MudTabPanel>
-    <MudTabPanel Tag="TabAdmin.AcctTypes" Text="Account Types"><AccountTypeList></AccountTypeList></MudTabPanel>
-    <MudTabPanel Tag="TabAdmin.StartDates" Text="Bi-Weeklsy Start Dates"></MudTabPanel>
-</MudTabs>
+}
+else
+{
+
+    <MudTabs Elevation="4" Rounded="true" Outlined="true" @bind-ActivePanelIndex="activeIndex" AlwaysShowScrollButtons="true" Color="@Color.Info" Class="mt-4">
+        <MudTabPanel Tag="TabAdmin.BudgetYears" Text="Budget Years"><BudgetYearsMgmt></BudgetYearsMgmt></MudTabPanel>
+        <MudTabPanel Tag="TabAdmin.MonthlyBudget" Text="Monthly Budget"><TransactionDetails></TransactionDetails></MudTabPanel>
+        <MudTabPanel Tag="TabAdmin.Organizations" Text="Organizations"><OrganizationList></OrganizationList></MudTabPanel>
+        <MudTabPanel Tag="TabAdmin.Accounts" Text="Accounts"><AccountList></AccountList></MudTabPanel>
+        <MudTabPanel Tag="TabAdmin.TransTypes" Text="Transaction Types"><TransactionTypeList></TransactionTypeList></MudTabPanel>
+        <MudTabPanel Tag="TabAdmin.AcctTypes" Text="Account Types"><AccountTypeList></AccountTypeList></MudTabPanel>
+        <MudTabPanel Tag="TabAdmin.StartDates" Text="Bi-Weeklsy Start Dates"></MudTabPanel>
+    </MudTabs>
+}
 
 
 @code {
     [Parameter]
-    public int tabId { get; set; }
+    public int tabId { get; set; } = 0;
     Type tabIds = typeof(TabAdmin);
+    public bool isLoading { get; set; } = true;
 
     private int activeIndex = 0;
 
     protected override void OnInitialized()
     {
         // 5 tabs right now to not exceed
-        if(tabId == 0 || tabId > 5)
+        if (tabId == 0 || tabId > 5)
         {
             activeIndex = 0; // go to default Tab
-        } else
+
+        }
+        else
         {
             activeIndex = tabId;
         }
-
+        isLoading = false;
+        StateHasChanged();
     }
 }

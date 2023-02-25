@@ -2,22 +2,30 @@
 @inject IBudgetYearService _budgetYearService
 
 <MudNavMenu>
-    <MudNavLink Href="admin" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Administraion</MudNavLink>
     <MudDivider Class="my-2" />
     <MudText Typo="Typo.h6" Class="px-4">Budget Years</MudText>
     <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Monthly Transactions</MudText>
-    @if (yrList.Count > 0)
+    @if (isLoading)
     {
-        @foreach (var yr in yrList)
+        <div class="loadingBox">
+            <img src="/images/loading.gif">
+        </div>
+    }
+    else
+    {
+        @if (yrList != null && yrList.Count > 0)
         {
-            <MudNavGroup Title="@yr.Year" Expanded="false">
-                @foreach (var thisMth in mthMenus.Where((m) => m.menuYear == yr.Year))
-                { 
-                  <MudNavLink Href="@thisMth.mthHref">@thisMth.menuMth</MudNavLink>
-                }
-            </MudNavGroup>
-        }
+            @foreach (var yr in yrList)
+            {
+                <MudNavGroup Title="@yr.Year" Expanded="false">
+                    @foreach (var thisMth in mthMenus.Where((m) => m.menuYear == yr.Year))
+                    {
+                        <MudNavLink Href="@thisMth.mthHref">@thisMth.menuMth</MudNavLink>
+                    }
+                </MudNavGroup>
+            }
 
+        }
     }
 </MudNavMenu>
 
@@ -27,7 +35,7 @@
     [CascadingParameter]
     public int monthBudget { get; set; }
 
-    public bool isLoading { get; set; } = true;
+    public bool isLoading { get; set; } = false;
     private List<BudgetYear>? yrList = new();
 
     private string mthName { get; set; } = string.Empty;
@@ -46,31 +54,59 @@
     }
     private List<MthMenuObj> mthMenus { get; set; } = new();
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        isLoading = true;
+    //        var defaultYear = new DateOnly().Year;
+    //        yrList = await _budgetYearService.GetBudgetYearsAsync();
+    //        yrList = yrList.FindAll((yr) => yr.Deleted == false);
+    //        if (yrList.Count > 0)
+    //        {
+    //            yrList.ForEach((yr) =>
+    //            {
+    //                yr.YearUrl = $"/year/{yr.Year}";
+    //                LoadMenus(yr);
+
+    //            });
+    //            isLoading = false;
+    //            StateHasChanged();
+    //        }
+    //        else
+    //        {
+    //            yrList.Add(new BudgetYear
+    //                {
+    //                    Year = "Empty"
+    //                });
+    //        }
+    //    }
+
+    //}
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
+        isLoading = true;
+        StateHasChanged();
+        var defaultYear = new DateOnly().Year;
+        yrList = await _budgetYearService.GetBudgetYearsAsync();
+        yrList = yrList.FindAll((yr) => yr.Deleted == false);
+        if (yrList.Count > 0)
         {
-            var defaultYear = new DateOnly().Year;
-            yrList = await _budgetYearService.GetBudgetYearsAsync();
-            if (yrList.Count > 0)
+            yrList.ForEach((yr) =>
             {
-                yrList.ForEach((yr) =>
+                yr.YearUrl = $"/year/{yr.Year}";
+                LoadMenus(yr);
+
+            });
+            isLoading = false;
+            StateHasChanged();
+        }
+        else
+        {
+            yrList.Add(new BudgetYear
                 {
-                    yr.YearUrl = $"/year/{yr.Year}";
-                    LoadMenus(yr);
-
+                    Year = "Empty"
                 });
-
-                StateHasChanged();
-            }
-            else
-            {
-                yrList.Add(new BudgetYear
-                    {
-                        Year = "Empty"
-                    });
-            }
-
         }
     }
 
@@ -83,7 +119,7 @@
                 {
                     menuYear = currYr.Year,
                     menuMth = @getMTH(currYr.Year, i),
-                    mthHref = currYr.YearUrl + $"/month/{i}",
+                    mthHref = "transaction/" + currYr.YearUrl + $"/month/{ i }",
                     menuMthInt = i
                 };
             mthMenus.Add(thisMth);

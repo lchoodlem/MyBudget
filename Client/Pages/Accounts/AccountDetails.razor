@@ -118,7 +118,9 @@ else
     private string Title { get; set; } = "Create";
     private bool isLoading { get; set; } = true;
     private string insertUpdateInfo = "updated";
-    private string returnHome = "admin/2";
+
+    private int tabId { get; set; } = (int)TabAdmin.Accounts;
+    private string returnHome = "admin";
     private bool formChanged { get; set; } = false;
     private MudBlazor.Color activeColor { set; get; } = Color.Success;
 
@@ -204,7 +206,7 @@ else
             }
             OnClickSnack("Success", $"Account: {editingObj.Name} was {insertUpdateInfo}.", true);
             await _accountService.GetAccounts();
-            _navigationManager.NavigateTo(returnHome);
+            _navigationManager.NavigateTo(returnHome + "/" + tabId);
 
         }
     }
@@ -237,13 +239,13 @@ else
             return;
         await _accountService.DeleteObject(editingObj.Id);
         await _accountService.GetAccounts();
-        _navigationManager.NavigateTo(returnHome);
+        _navigationManager.NavigateTo(returnHome + "/" + tabId);
     }
     private async Task CancelEditing()
     {
         editingObj = new Account();
         await _accountService.GetAccounts();
-        _navigationManager.NavigateTo(returnHome);
+        _navigationManager.NavigateTo(returnHome + "/" + tabId);
     }
 
 

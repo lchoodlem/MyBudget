@@ -33,22 +33,24 @@
             var result = await _http.GetFromJsonAsync<ServiceResponse<List<BudgetYear>>>("api/BudgetYear");
             if (result != null && result.Data != null)
                 BudgetYears = result.Data;
-            return BudgetYears;
+            var orderedYears = BudgetYears.OrderBy(yr => yr.Year).ToList();
+            return orderedYears;
         }
         public async Task<List<BudgetYear>> GetBudgetYearsAsync()
         {
             var response = await _http.GetFromJsonAsync<ServiceResponse<List<BudgetYear>>>("api/BudgetYear");
-            if(response != null && response.Data != null)
-            { BudgetYears =  response.Data; }
-            return BudgetYears;
+            if (response != null && response.Data != null)
+                BudgetYears = response.Data;
+            List<BudgetYear> orderedYears = BudgetYears.OrderBy(yr => yr.Year).ToList();
+            return orderedYears;
         }
 
         public async Task AddObject(BudgetYear obj)
         {
             var response = await _http.PostAsJsonAsync("api/BudgetYear", obj);
-            BudgetYears = (await response.Content
-                .ReadFromJsonAsync<ServiceResponse<List<BudgetYear>>>()).Data;
-            await GetBudgetYears();
+           // BudgetYears = (await response.Content
+             //   .ReadFromJsonAsync<ServiceResponse<List<BudgetYear>>>()).Data;
+            //await GetBudgetYears();
             OnChange.Invoke();
         }
 
@@ -64,10 +66,10 @@
         public async Task DeleteObject(int id)
         {
             var response = await _http.DeleteAsync($"api/BudgetYear/{id}");
-            BudgetYears = (await response.Content
-                .ReadFromJsonAsync<ServiceResponse<List<BudgetYear>>>()).Data;
-            await GetBudgetYears();
-            OnChange.Invoke();
+            //BudgetYears = (await response.Content
+              //  .ReadFromJsonAsync<ServiceResponse<List<BudgetYear>>>()).Data;
+            //var newList = await GetBudgetYearsAsync();
+            //OnChange.Invoke();
         }
 
         public async Task UpdateObject(BudgetYear BudgetYear)

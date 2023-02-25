@@ -71,7 +71,8 @@ else
     private string message = string.Empty;
     [Parameter]
     public int Id { get; set; }
-    private string returnHome = "admin/4";
+    private int tabId { get; set; } = (int)TabAdmin.AcctTypes;
+    private string returnHome = "admin";
 
     private AcctType editingObj { get; set; } = new AcctType() { IsNew = true };
     private string Title { get; set; } = "Create";
@@ -163,7 +164,7 @@ else
             }
             OnClickSnack("Success", $"Account Type {editingObj.Name} was {insertUdateInfo}.", true);
             await _acctTypeService.GetAcctTypes();
-            _navigationManager.NavigateTo(returnHome);
+            _navigationManager.NavigateTo(returnHome+"/"+tabId);
         }
     }
 
@@ -192,13 +193,13 @@ else
             return;
         await _acctTypeService.DeleteObject(editingObj.Id);
         await _acctTypeService.GetAcctTypes();
-        _navigationManager.NavigateTo(returnHome);
+        _navigationManager.NavigateTo(returnHome + "/" + tabId);
     }
     private async Task CancelEditing()
     {
         editingObj = new AcctType();
         await _acctTypeService.GetAcctTypes();
-        _navigationManager.NavigateTo(returnHome);
+        _navigationManager.NavigateTo(returnHome + "/" + tabId);
     }
 
 }

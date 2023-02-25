@@ -1,0 +1,502 @@
+﻿@page "/transaction/budget"
+@page "/Transaction/year/{yrInt:int}/month/{mnthInt:int}"
+
+@inject ITransactionTypeService _transTypeService
+@inject IAccountService _acctService
+@inject ITransactionService _transactionService
+@inject ISnackbar _snackbar
+@inject NavigationManager _navigationManager
+@implements IDisposable
+
+
+<div class="col-lg-12 control-section align-content-center">
+    <div class="content-wrapper">
+        @if (!isLoading)
+        {
+            <div class="row">
+                <MudTable Items="@Transactions" Dense="@dense" Hover="@hover" ReadOnly="@ronly"
+                      CanCancelEdit="@canCancelEdit" 
+                      @bind-SelectedItem="selectedBY" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+                      RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+                      RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked="@blockSwitch"
+                      ApplyButtonPosition="@applyButtonPosition"
+                      EditButtonPosition="@editButtonPosition" EditTrigger="@editTrigger"
+                      FixedHeader="true" FixedFooter="true" Height="400px"
+                      Loading="@isLoading" Bordered="true" Striped="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h3">@Title Transactions</MudText>
+                        @if (transYrInt != 1999)
+                        {
+                            <MudText Typo="Typo.h6">for @transMonth @transYrInt</MudText>
+                        }
+                        <MudSpacer></MudSpacer>
+                        <MudIconButton Size="@Size.Large" Color="Color.Tertiary" Title="Add New Transaction"
+                                   Icon="@Icons.Material.Filled.Add"
+                                   Class="pa-0" OnClick="@AddTransaction"
+                                   Disabled="@isEditing" />
+                    </ToolBarContent>
+                    <ColGroup>
+                        <col style="width:10px;" /> @* reconciled*@
+                        <col style="width:10px;" /> @* Day *@
+                        <col style="width:30px;" /> @* Budget $ *@
+                        <col style="width:30px;" /> @* Actual $ *@
+                        <col style="width:30px;" /> @* AcctName *@
+                        <col style="width:20px;" /> @* TransTypeName *@
+                        <col style="width:5px;" /> @* Deleted *@
+                        @if (isEditing)
+                        {
+                            <col style="width:10px;" />
+                        }
+                        else
+                        {
+                            <col style="width:1px;" />
+                        }
+                    </ColGroup>
+                    <HeaderContent>
+                        <MudTh Class="clm-row-small">Rec</MudTh>
+                        <MudTh Class="clm-row-small"><MudTableSortLabel SortBy="new Func<Transaction, object>(x=>x.Day)">Day</MudTableSortLabel></MudTh>
+                        <MudTh Class="clm-row-small">Budget$</MudTh>
+                        <MudTh Class="clm-row-small">Actual$</MudTh>
+                        <MudTh Class="clm-row-small"><MudTableSortLabel SortBy="new Func<Transaction, object>(x=>x.Account.Name)">Acct</MudTableSortLabel></MudTh>
+                        <MudTh Class="clm-row-small"><MudTableSortLabel SortBy="new Func<Transaction, object>(x=>x.TransactionType.TypeName)">Type</MudTableSortLabel></MudTh>
+                        <MudTh Class="clm-row-small"><MudTableSortLabel SortBy="new Func<Transaction, object>(x=>x.Deleted)">Active</MudTableSortLabel></MudTh>
+                        <MudTh Class="clm-row-small"></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd Class="clm-row-small" DataLabel="Rec">@context.Reconciled</MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="Day">@context.Day</MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="Budget$">@context.BudgetAmount</MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="Actual$">@context.Amount</MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="Acct">@context.Account.Name</MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="Type">@context.TransactionType.TypeName</MudTd>
+                        <MudTd DataLabel="Active">
+                            @if (context.Deleted)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ThumbDown"
+                                 Color="Color.Error" Title="@deletedTitle"></MudIcon>
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ThumbUp"
+                                 Color="Color.Success" Title="@activeTitle"></MudIcon>
+                            }
+                        </MudTd>
+                        <MudTd Class="clm-row-small" DataLabel=""></MudTd>
+                    </RowTemplate>
+                    <RowEditingTemplate>
+                        <MudTd Class="clm-row-small" DataLabel="Rec">
+                            <MudCheckBox @bind-Checked="@context.Reconciled"></MudCheckBox>
+                        </MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="Day">
+                            <MudTextField @bind-Value="@context.Day" Required />
+                        </MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="Budget$">
+                            <MudNumericField HideSpinButtons="true"
+                                         Format="C2" Culture="@_en" T="double"
+                                         AdornmentIcon="@Icons.Material.Outlined.AttachMoney"
+                                         Variant="Variant.Outlined" Required="@budgetAmtRequired"
+                                         @bind-Value="@context.BudgetAmount" />
+                        </MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="Actual$">
+                            <MudNumericField HideSpinButtons="true"
+                                         Format="C2" Culture="@_en" T="double"
+                                         AdornmentIcon="@Icons.Material.Outlined.AttachMoney"
+                                         Variant="Variant.Outlined" Required="@budgetAmtRequired"
+                                         @bind-Value="@context.BudgetAmount" />
+                        </MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="Account">
+                            <select @bind="@editingObj.AccountId" class="form-control">
+                                @foreach (var acct in _acctService.Accounts)
+                                {
+                                    <option value="@acct.Id.ToString()">@acct.Name</option>
+                                }
+                            </select>
+                        </MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="Type">
+                            <select @bind="@editingObj.TransactionTypeId" class="form-control">
+                                @foreach (var transType in _transTypeService.TransactionTypes)
+                                {
+                                    <option value="@transType.Id.ToString()">@transType.TypeName</option>
+                                }
+                            </select>
+                        </MudTd>
+
+                        @if (isEditing)
+                        {
+                            <MudTd Class="clm-row-small" DataLabel="">
+                                @if (context.Deleted)
+                                {
+                                    <MudIconButton OnClick="@((e) => ToggleDelete())"
+                                       Icon="@Icons.Material.Filled.RestoreFromTrash"
+                                       Disabled="false" Color="Color.Success">
+                                    </MudIconButton>
+                                }
+                                else
+                                {
+                                    @if (toggledDelete)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.ThumbUp"
+                                 Color="Color.Success" Title="@activeTitle"></MudIcon>
+                                    }
+                                    else
+                                    {
+                                        <MudIconButton Size="@Size.Small" Color="Color.Error" Title="Delete Transaction"
+                                       Icon="@Icons.Material.Filled.Delete"
+                                       Class="pa-0" OnClick="@DeleteObject" />
+                                    }
+
+                                }
+
+                            </MudTd>
+                        }
+                        else
+                        {
+                            <MudTd Class="clm-row-small" DataLabel=""></MudTd>
+                        }
+                    </RowEditingTemplate>
+
+                    <PagerContent>
+
+                        <MudTablePager />
+                    </PagerContent>
+                    <EditButtonContent Context="button">
+                        <MudIconButton Size="@Size.Medium"
+                                   Icon="@Icons.Material.Outlined.Edit"
+                                   Class="pa-0" OnClick="@button.ButtonAction"
+                                   Disabled="@isEditing" />
+                    </EditButtonContent>
+                </MudTable>
+            </div>
+        }
+        else
+        {
+            // loader....
+            <div class="text-center">
+                <img src="/images/ajax-loader.gif">
+            </div>
+        }
+    </div>
+
+</div>
+
+
+
+
+@code {
+    [Parameter]
+    public int yrInt { get; set; } = 0; // if yrInt is not there us Transaction and BudgetMonth
+    [Parameter]
+    public int mnthInt { get; set; } = 0; // if mnthInt is not there us Transaction and BudgetMonth
+
+    public CultureInfo _en = CultureInfo.GetCultureInfo("end-US");
+
+    private string message { set; get; } = string.Empty;
+
+    public int Transaction { get; set; } = 1999; // Budget Transactions will use year 1999
+    public int BudgetMonth { get; set; } = 1; //Budget Month will use Jan month 1
+
+    public int transId { get; set; } = 0;
+    public int transYrInt { get; set; } = 0;
+    public int transMnthInt { get; set; } = 0;
+    public string transMonth { get; set; } = string.Empty;
+    public bool budgetAmtRequired { get; set; } = false;
+    public bool amtRequired { get; set; } = false;
+    private Transaction editingObj { get; set; } = new Transaction() { IsNew = true };
+    private string Title { get; set; } = "Create";
+    private bool isLoading { get; set; } = true;
+    private string insertUpdateInfo = "updated";
+
+    private int tabId { get; set; } = (int)TabAdmin.MonthlyBudget;
+    private string returnHome = "admin";
+    private bool formChanged { get; set; } = false;
+    private MudBlazor.Color activeColor { set; get; } = Color.Success;
+
+    private bool ReadOnlyDel { set; get; } = false;
+    private IEnumerable<Transaction> Transactions { get; set; } = new List<Transaction>();
+
+    private bool isEditing { get; set; } = false;
+    private bool isNew { get; set; } = false;
+    private bool visibleAdd { get; set; } = false;
+    private string deletedTitle = "Inactive";
+    private string activeTitle = "Active";
+
+    private string tableAttr { get; set; } = string.Empty;
+    public class MonthName
+    {
+        public string mnthName { get; set; } = string.Empty;
+        public int monthInt { get; set; } = 1;
+        public int numOfDays { get; set; } = 0;
+    }
+    private List<MonthName> monthNames { get; set; } = new List<MonthName>();
+
+    private DialogOptions dialogOptions = new()
+        {
+            FullWidth = true,
+            MaxWidth = MaxWidth.ExtraSmall,
+            CloseButton = true,
+            DisableBackdropClick = true,
+            NoHeader = true,
+            Position = DialogPosition.Center,
+            CloseOnEscapeKey = true
+        };
+
+    private List<string> editEvents = new();
+    private bool dense = true;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = true;
+    private bool blockSwitch = false;
+    private string searchString = "";
+    private Transaction? selectedBY;
+    private Transaction? TransBeforeEdit;
+    private Transaction newTransaction = new();
+    private List<Transaction> existingBY = new();
+    private Transaction ByExsists { get; set; } = new();
+    private HashSet<Transaction> selectedBYs = new HashSet<Transaction>();
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.Start;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.Start;
+    private TableEditTrigger editTrigger = TableEditTrigger.EditButton;
+    private bool toggledDelete { get; set; } = false;
+
+    private TableGroupDefinition<Transaction> _groupDefinition = new();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //EditObject(editingObj);
+        if (firstRender)
+        {
+            if (yrInt == 0 && mnthInt == 0)
+            {  // Creating a Budget Transacion
+                Title = "Budget";
+                transYrInt = Transaction;
+                transMnthInt = BudgetMonth;
+                transMonth = monthNames.Find(m => m.monthInt == transMnthInt).mnthName;
+                isLoading = false;
+                returnHome = "admin/1";
+            }
+
+            else if (yrInt != 0 && mnthInt != 0)
+            {
+                //Creating a transaction
+
+                transYrInt = yrInt;
+                transMnthInt = mnthInt;
+                transMonth = monthNames.Find(m => m.monthInt == transMnthInt).mnthName;
+                Title = $"Creating for {transMonth} of {transYrInt}";
+                returnHome = $"transaction/year/{transYrInt}/month/{transMnthInt}";
+            }
+            else
+            {
+                Title = "WTF??!?!?";
+                StateHasChanged();
+            }
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        if (yrInt == 0 && mnthInt == 0)
+        {  // Creating a Budget Transacion
+            Title = "Budget";
+            transYrInt = Transaction;
+            transMnthInt = BudgetMonth;
+            LoadMonths(transYrInt);
+        }
+
+        else if (yrInt != 0 && mnthInt != 0)
+        {
+            //Creating a transaction
+
+            transYrInt = yrInt;
+            transMnthInt = mnthInt;
+            LoadMonths(transYrInt);
+        }
+        await _transactionService.GetTransactions(transYrInt, transMnthInt);
+        await _acctService.GetAccounts();
+        await _transTypeService.GetTransactionTypes();
+        _transactionService.OnChange += StateHasChanged;
+    }
+
+    private void AddTransaction()
+    {
+        isNew = true;
+        toggledDelete = false;
+        visibleAdd = true;
+    }
+    private async Task LoadObject()
+    {
+        isLoading = true;
+        LoadMonths(transYrInt);
+        StateHasChanged();
+        editingObj = new Transaction() { IsNew = true };
+        editingObj = await _transactionService.GetTransactionById(transId);
+
+
+        ReadOnlyDel = !editingObj.Deleted;
+        if (ReadOnlyDel)
+            activeColor = Color.Error;
+        editingObj.IsNew = false;
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private void EditObject(Transaction obj)
+    {
+        obj.Editing = true;
+        ReadOnlyDel = true;
+        editingObj = obj;
+    }
+
+    private void ToggleDelete()
+    {
+        editingObj.Deleted = !editingObj.Deleted;
+        ReadOnlyDel = !editingObj.Deleted;
+        if (ReadOnlyDel)
+            activeColor = Color.Error;
+        formChanged = true;
+        _transactionService.OnChange += StateHasChanged;
+    }
+
+    private void FormChanged(bool yesNo = false)
+    {
+        formChanged = yesNo;
+    }
+    private void ToggleChanged(bool toggled)
+    {
+        formChanged = toggled;
+    }
+    private async Task UpsertObject()
+    {
+        if (editingObj.YearInt == 0 || editingObj.MonthInt == 0 || editingObj.Day <= 0 || editingObj.Day > 31)
+        {
+            OnClickSnack("Error", "Year and Month are required and Day must be 1-31", true);
+        }
+        else
+        {
+            if (editingObj.Id == 0)
+            {
+                // Create
+                await _transactionService.AddTransaction(editingObj);
+                insertUpdateInfo = "updated";
+            }
+            else
+            {
+                await _transactionService.UpdateTransaction(editingObj);
+                insertUpdateInfo = "updated";
+            }
+            OnClickSnack("Success", $"Transaction: Day {editingObj.Day} for '{editingObj.Account.Name}'!", true);
+            await _transactionService.GetTransactions();
+            ReturnToWhere(returnHome);
+
+        }
+    }
+
+    private void OnClickSnack(string severity, string message, bool close = true)
+    {
+        var severityType = (Severity)Enum.Parse(typeof(Severity), severity, true);
+        @if (!close)
+            _snackbar.Add(message, severityType, ConfigurationBinder => { ConfigurationBinder.ShowCloseIcon = false; });
+        _snackbar.Add(message, severityType);
+    }
+
+
+    public void Dispose()
+    {
+        _transactionService.OnChange -= StateHasChanged;
+    }
+
+
+    private async Task DeleteObject()
+    {
+        if (editingObj.Id == 0)
+            return;
+        await _transactionService.DeleteTransaction(editingObj.Id);
+        await _transactionService.GetTransactions(transYrInt, transMnthInt);
+        ReturnToWhere(returnHome);
+    }
+    private async Task CancelEditing()
+    {
+        editingObj = new Transaction();
+        await _transactionService.GetTransactions(transYrInt, transMnthInt);
+        ReturnToWhere(returnHome);
+    }
+    private void BackupItem(object element)
+    {
+        Transaction TransBeforeEdit = new Transaction()
+            {
+                Reconciled = ((Transaction)element).Reconciled,
+                Id = ((Transaction)element).Id,
+                YearInt = ((Transaction)element).YearInt,
+                MonthInt = ((Transaction)element).MonthInt,
+                Day = ((Transaction)element).Day,
+                BudgetAmount = ((Transaction)element).BudgetAmount,
+                Amount = ((Transaction)element).Amount,
+                AccountId = ((Transaction)element).AccountId,
+                TransactionTypeId = ((Transaction)element).TransactionTypeId,
+                Deleted = ((Transaction)element).Deleted
+            };
+        isEditing = true;
+        toggledDelete = false;
+    }
+    private void ResetItemToOriginalValues(object element)
+    {
+        if (((Transaction)element).AccountId != TransBeforeEdit.AccountId)
+        {
+            OnClickSnack("Warning", $"Transaction Reset: Day {((Transaction)element).Day} for '{((Transaction)element).Account.Name}'!", true);
+        }
+        ((Transaction)element).Reconciled = TransBeforeEdit.Reconciled;
+        ((Transaction)element).Day = TransBeforeEdit.Day;
+        ((Transaction)element).BudgetAmount = TransBeforeEdit.BudgetAmount;
+        ((Transaction)element).Amount = TransBeforeEdit.Amount;
+        ((Transaction)element).AccountId = TransBeforeEdit.AccountId;
+        ((Transaction)element).TransactionTypeId = TransBeforeEdit.TransactionTypeId;
+        ((Transaction)element).YearInt = TransBeforeEdit.YearInt;
+        ((Transaction)element).MonthInt = TransBeforeEdit.MonthInt;
+        ((Transaction)element).Deleted = TransBeforeEdit.Deleted;
+        isEditing = false;
+        isNew = false;
+        toggledDelete = false;
+        StateHasChanged();
+    }
+    private async void ItemHasBeenCommitted(object element)
+    {
+        OnClickSnack("Success", $"Transaction Updated: Day {((Transaction)element).Day} for '{((Transaction)element).Account.Name}'!", true);
+        isEditing = false;
+        await _transactionService.UpdateTransaction((Transaction)element);
+        StateHasChanged();
+        ReturnToWhere(returnHome); // this is to fix the Menu
+    }
+    private void ReturnToWhere(string thisPath)
+    {
+        _navigationManager.NavigateTo(thisPath);
+    }
+
+    private List<MonthName> LoadMonths(int thisYr)
+    {
+        @for (var i = 1; i < 13; i++)
+        {  //$"/year/{yr.Year}"
+
+            MonthName thisMth = new MonthName
+                {
+
+                    mnthName = @getMTH(thisYr, i),
+                    monthInt = i,
+                    numOfDays = DateTime.DaysInMonth(thisYr, i)
+
+                };
+            monthNames.Add(thisMth);
+        }
+        return monthNames;
+
+    }
+
+
+    private string getMTH(int year, int iMth)
+    {
+        //int thisYear = Int32.Parse(year);
+        string thisMMM = string.Empty;
+        DateTime mth = new DateTime(year, iMth, 1);
+        thisMMM = mth.ToString("M");
+        return thisMMM;
+    }
+
+
+}
