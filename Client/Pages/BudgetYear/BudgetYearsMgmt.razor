@@ -1,0 +1,398 @@
+﻿@inject IBudgetYearService _budgetYearService
+@inject NavigationManager _navigationManager
+@inject ISnackbar _snackBar
+@inject IDialogService _dialogService
+
+
+<MudText Typo="Typo.h3"
+         Class="card-title text-primary mb-3 ml-3">
+    Budget Year Management
+</MudText>
+
+@if (isLoading)
+{
+    <div class="loadingBox">
+        <img src="/images/loading.gif">
+    </div>
+}
+else
+{
+    <div class="col-lg-12 control-section align-content-center">
+        <div class="content-wrapper">
+            <div class="row">
+                <MudTable Items="@BudgetYears" Dense="@dense" Hover="@hover" ReadOnly="@ronly"
+                      CanCancelEdit="@canCancelEdit" Filter="new Func<BudgetYear, bool>(FilterFunc)"
+                      @bind-SelectedItem="selectedBY" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+                      RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+                      RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked="@blockSwitch"
+                      ApplyButtonPosition="@applyButtonPosition"
+                      EditButtonPosition="@editButtonPosition" EditTrigger="@editTrigger"
+                      FixedHeader="true" FixedFooter="true" Height="400px"
+                      Loading="@isLoading" Bordered="true" Striped="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Budget Year</MudText>
+                        <MudSpacer></MudSpacer>
+                        <MudIconButton Size="@Size.Large" Color="Color.Tertiary" Title="Add New Price"
+                                   Icon="@Icons.Material.Filled.Add"
+                                   Class="pa-0" OnClick="@AddYear"
+                                   Disabled="@isEditing" />
+                    </ToolBarContent>
+                    <ColGroup>
+                        <col style="width:10px;" />
+                        <col style="width:50px;" />
+                        <col style="width:10px;" />
+                        @if (isEditing)
+                        {
+                            <col style="width:10px;" />
+                        }
+                        else
+                        {
+                            <col style="width:1px;" />
+                        }
+                    </ColGroup>
+                    <HeaderContent>
+                        <MudTh Class="clm-row-small"><MudTableSortLabel SortBy="new Func<BudgetYear, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+                        <MudTh Class="clm-row-small"><MudTableSortLabel SortBy="new Func<BudgetYear, object>(x=>x.Year)">Year</MudTableSortLabel></MudTh>
+                        <MudTh Class="clm-row-small"><MudTableSortLabel SortBy="new Func<BudgetYear, object>(x=>x.Deleted)">Active</MudTableSortLabel></MudTh>
+                        <MudTh Class="clm-row-small"></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+
+                        <MudTd Class="clm-row-small" DataLabel="Id">@context.Id</MudTd>
+                        <MudTd Class="clm-row-small" DataLabel="year">@context.Year</MudTd>
+                        <MudTd DataLabel="Deleted">
+                            @if (context.Deleted)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ThumbDown"
+                                 Color="Color.Error" Title="@deletedTitle"></MudIcon>
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ThumbUp"
+                                 Color="Color.Success" Title="@activeTitle"></MudIcon>
+                            }
+                        </MudTd>
+                        <MudTd Class="clm-row-small" DataLabel=""></MudTd>
+                    </RowTemplate>
+                    <RowEditingTemplate>
+
+                        <MudTd Class="clm-row-small" DataLabel="Id">@context.Id</MudTd>
+
+                        <MudTd Class="clm-row-small" DataLabel="Year">
+                            <MudTextField @bind-Value="@context.Year" Required />
+                        </MudTd>
+
+                        @if (isEditing)
+                        {
+                            <MudTd Class="clm-row-small" DataLabel="">
+                                @if (context.Deleted)
+                                {
+                                    <MudIconButton OnClick="@((e) => ToggleDelete(@context))"
+                                       Icon="@Icons.Material.Filled.RestoreFromTrash"
+                                       Disabled="false" Color="Color.Success">
+                                    </MudIconButton>
+                                }
+                                else
+                                {
+                                    @if (toggledDelete)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.ThumbUp"
+                                                Color="Color.Success" Title="@activeTitle"></MudIcon>
+                                    }
+                                    else
+                                    {
+                                        <MudIconButton Size="@Size.Small" Color="Color.Error" Title="Delete Year"
+                                               Icon="@Icons.Material.Filled.Delete"
+                                               Class="pa-0" OnClick="@DeleteYear" />
+                                    }
+
+                                }
+
+                            </MudTd>
+
+
+                        }
+                        else
+                        {
+                            <MudTd Class="clm-row-small" DataLabel=""></MudTd>
+                        }
+                    </RowEditingTemplate>
+
+                    <PagerContent>
+
+                        <MudTablePager />
+                    </PagerContent>
+                    <EditButtonContent Context="button">
+                        <MudIconButton Size="@Size.Medium"
+                                   Icon="@Icons.Material.Outlined.Edit"
+                                   Class="pa-0" OnClick="@button.ButtonAction"
+                                   Disabled="@isEditing" />
+                    </EditButtonContent>
+                </MudTable>
+            </div>
+        </div>
+
+    </div>
+    <MudDialog @bind-IsVisible="visibleAdd" Options="dialogOptions">
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3" />
+                New Year
+            </MudText>
+        </TitleContent>
+
+        <DialogContent>
+            <EditForm Model="newBudgetYear">
+                <MudGrid>
+                    <MudItem xs="12" sm="10">
+                        <DataAnnotationsValidator />
+                        <MudTextField @bind-Value="@newBudgetYear.Year"
+                                  T="string" Label="Year" Validation="true" Required="true"
+                                  RequiredError="Year is required" />
+                    </MudItem>
+                    <MudTd DataLabel="Deleted">
+                        @if (newBudgetYear.Deleted)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.ThumbDown"
+                             Color="Color.Error" Title="@deletedTitle"></MudIcon>
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.ThumbUp"
+                             Color="Color.Success" Title="@activeTitle"></MudIcon>
+                        }
+                    </MudTd>
+                </MudGrid>
+            </EditForm>
+        </DialogContent>
+        <DialogActions>
+            <MudButton Variant="Variant.Text"
+                   Color="Color.Primary" OnClick="SubmitAdd"
+                   EndIcon="@Icons.Material.Filled.Add"
+                   Class="px-10">Add</MudButton>
+            <MudButton Variant="Variant.Text"
+                   Color="Color.Warning" OnClick="CancelAdd"
+                   EndIcon="@Icons.Material.Filled.Delete"
+                   Class="px-10">Cancel</MudButton>
+        </DialogActions>
+
+    </MudDialog>
+
+}
+
+@code {
+    private IEnumerable<BudgetYear> BudgetYears { get; set; } = new List<BudgetYear>();
+    private bool isLoading { get; set; } = false;
+    private bool isEditing { get; set; } = false;
+    private bool isNew { get; set; } = false;
+    private bool visibleAdd { get; set; } = false;
+    private string deletedTitle = "Inactive";
+    private string activeTitle = "Active";
+
+    private string tableAttr { get; set; } = string.Empty;
+
+    private DialogOptions dialogOptions = new()
+        {
+            FullWidth = true,
+            MaxWidth = MaxWidth.ExtraSmall,
+            CloseButton = true,
+            DisableBackdropClick = true,
+            NoHeader = true,
+            Position = DialogPosition.Center,
+            CloseOnEscapeKey = true
+        };
+
+    private List<string> editEvents = new();
+    private bool dense = true;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = true;
+    private bool blockSwitch = false;
+    private string searchString = "";
+    private BudgetYear? selectedBY;
+    private BudgetYear? ByBeforeEdit;
+    private BudgetYear newBudgetYear = new();
+    private List<BudgetYear> existingBY = new();
+    private BudgetYear ByExsists { get; set; } = new();
+    private HashSet<BudgetYear> selectedBYs = new HashSet<BudgetYear>();
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.Start;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.Start;
+    private TableEditTrigger editTrigger = TableEditTrigger.EditButton;
+    private MudBlazor.Color activeColor { set; get; } = Color.Success;
+    private bool ReadOnlyDel { set; get; } = false;
+    private bool formChanged { get; set; } = false;
+    private bool toggledDelete { get; set; } = false;
+    private string returnHome = "/";
+
+    private TableGroupDefinition<BudgetYear> _groupDefinition = new();
+    protected override async Task OnAfterRenderAsync(bool firsRender)
+    {
+        if (firsRender)
+        {
+            isLoading = true;
+            StateHasChanged();
+            BudgetYears = await _budgetYearService.GetBudgetYearsAsync();
+            // Set the BudgetYears each TransExists flag for disabling Delete button
+            isLoading = false;
+            StateHasChanged();
+
+        }
+    }
+    private void BackupItem(object element)
+    {
+        ByBeforeEdit = new()
+            {
+                Id = ((BudgetYear)element).Id,
+                Year = ((BudgetYear)element).Year,
+                Deleted = ((BudgetYear)element).Deleted
+            };
+        isEditing = true;
+        toggledDelete = false;
+    }
+    private void ResetItemToOriginalValues(object element)
+    {
+        if (((BudgetYear)element).Year != ByBeforeEdit.Year)
+        {
+            OnClickSnack("Warning", $"Budget Year Reset: {((BudgetYear)element).Year}!", true);
+        }
+        ((BudgetYear)element).Year = ByBeforeEdit.Year;
+        ((BudgetYear)element).Deleted = ByBeforeEdit.Deleted;
+        isEditing = false;
+        isNew = false;
+        toggledDelete = false;
+        StateHasChanged();
+    }
+    private async void ItemHasBeenCommitted(object element)
+    {
+        OnClickSnack("Success", $"Budget Year Updated: {((BudgetYear)element).Year}!", true);
+        isEditing = false;
+        await _budgetYearService.UpdateObject((BudgetYear)element);
+        StateHasChanged();
+        ReturnToAdmin("admin"); // this is to fix the Menu
+    }
+    private void AddYear()
+    {
+        isNew = true;
+
+        toggledDelete = false;
+        visibleAdd = true;
+    }
+    private async Task doesYearExist(BudgetYear newBY)
+    {
+        existingBY = await _budgetYearService.GetBudgetYearsAsync();
+        ByExsists = existingBY.FirstOrDefault(budgetY => budgetY.Year == newBY.Year);
+    }
+
+    private async void SubmitAdd()
+    {
+        isNew = false;
+        isLoading = true;
+        await doesYearExist(newBudgetYear);
+        if (ByExsists == null || ByExsists.Year == "")
+        {
+            OnClickSnack("Success", $"Budget Year added: {newBudgetYear.Year}!", true);
+            await _budgetYearService.AddObject(newBudgetYear);
+            StateHasChanged();
+
+            newBudgetYear = new();
+            isLoading = false;
+            visibleAdd = false;
+
+            toggledDelete = false;
+            BudgetYears = await _budgetYearService.GetBudgetYearsAsync();
+            StateHasChanged();
+        }
+        else
+        {
+            OnClickSnack("Error", $"Budget Year: '{newBudgetYear.Year}' already exists!", true);
+            newBudgetYear = new();
+            isLoading = false;
+            visibleAdd = false;
+            BudgetYears = await _budgetYearService.GetBudgetYearsAsync();
+            StateHasChanged();
+        }
+
+        ReturnToAdmin("admin"); // this is to fix the Menu
+        StateHasChanged();
+
+    }
+    private async void DeleteYear()
+    {
+        if (ByBeforeEdit.Id == 0)
+            return;
+        // TODO: going to need to check if there are any Reconciled amounts and NOT Allow Delete
+        // NOT Sure if it matters. Delete only removes it from the menu
+
+        isNew = false;
+        isEditing = false;
+        isLoading = true;
+        await _budgetYearService.DeleteObject(ByBeforeEdit.Id);
+        OnClickSnack("Success", $"Year: {ByBeforeEdit.Year} has been deleted.", true);
+        isLoading = false;
+        BudgetYears = new List<BudgetYear>();
+        BudgetYears = await _budgetYearService.GetBudgetYearsAsync();
+        newBudgetYear = new();
+        toggledDelete = false;
+        isEditing = false;
+        StateHasChanged();
+        ReturnToAdmin("admin"); // this is to fix the Menu
+
+
+    }
+    private void ToggleDelete(BudgetYear editingObj)
+    {
+        editingObj.Deleted = !editingObj.Deleted;
+        ReadOnlyDel = !editingObj.Deleted;
+        if (ReadOnlyDel)
+            activeColor = Color.Error;
+        formChanged = true;
+        toggledDelete = true;
+        _budgetYearService.OnChange += StateHasChanged;
+    }
+    private void ReturnToAdmin(string thisPath)
+    {
+        _navigationManager.NavigateTo(thisPath != "" ? thisPath : returnHome, forceLoad: true);
+    }
+    private void CancelAdd()
+    {
+        newBudgetYear = new();
+        visibleAdd = false;
+        isNew = false;
+        OnClickSnack("Warning", "Cancelled changes on Add Year!", true);
+        StateHasChanged();
+        ReturnToAdmin("admin");
+    }
+
+    private bool FilterFunc(BudgetYear element)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Year.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{element.Id} {element.Year}".Contains(searchString))
+            return true;
+        return false;
+    }
+
+    private void AddEditionEvent(string message)
+    {
+        editEvents.Add(message);
+        StateHasChanged();
+    }
+
+    private void ClearEvenLog()
+    {
+        editEvents.Clear();
+    }
+
+    private void OnClickSnack(string severity, string message, bool close = true)
+    {
+        // (MyColours)Enum.Parse(typeof(MyColours), "red", true);
+        var severityType = (Severity)Enum.Parse(typeof(Severity), severity, true);
+        @if (!close)
+            _snackBar.Add(message, severityType, config => { config.ShowCloseIcon = false; });
+        _snackBar.Add(message, severityType);
+    }
+
+
+}

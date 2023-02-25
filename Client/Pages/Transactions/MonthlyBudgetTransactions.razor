@@ -1,47 +1,35 @@
-﻿@page "/year/{yearBudget:int}/month/{monthBudget:int}"
-
-<MudText Typo="Typo.h6">Monthly</MudText>
+﻿
 @if (isLoading)
 {
     <div class="loadingBox">
         <img src="/images/loading.gif">
     </div>
-} else
+}
+else
 {
-    
+    <MudPaper Height="400px" Width="100%">
+        <MudContainer Fixed="true">
+            <MudPaper Height="400px" Width="100%" Square="true" Class="mud-theme-primary">
+                <MudText Typo="Typo.h4">Monthly Budget</MudText>
+                <MudText Typo="Typo.h6">Party Like its @yearBudget - Janurary @monthBudget that is</MudText>
+                @if (Transactions.Count > 0)
+                {
+                    
+                } else
+                {
+                   
+                }
 
-<CascadingValue Value="@yearBudget" Name="yearBudget">
-    <MudText Typo="Typo.h4">@yearBudget</MudText>
-</CascadingValue>
-<CascadingValue Value="@monthBudget" Name="monthBudget">
-    <MudText Typo="Typo.h4">@monthBudget</MudText>
-</CascadingValue>
-<MudTabs Outlined="true" Position="Position.Left" Rounded="true" Border="true"
-         ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
-    @foreach (var mth in tabMonth)
-    {
-        <MudTabPanel Text=mth>
-            <MudText>@monthBudget for @yearBudget</MudText>
-        </MudTabPanel>
+</MudPaper>
+            </MudContainer>
+        </MudPaper>
 
-    }
-</MudTabs>
 }
 @code {
-    [Parameter]
-    public int yearBudget { get; set; }
-    [Parameter]
-    public int monthBudget { get; set; } // this is the current month (current tab)
-
-    [Parameter]
-    [SupplyParameterFromQuery(Name = "yearBudget")]
-    public int viewYear { get; set; }
-
-    [Parameter]
-    [SupplyParameterFromQuery(Name = "monthBudget")]
-    public int viewMonth { get; set; }
-
     private bool isLoading { get; set; } = false;
+    public int yearBudget { get; set; } = 1999;  // parameters in MonthlyTrnasactions
+    public int monthBudget { get; set; } = 1; // parameters in MonthlyTrnasactions
+    public List<Transaction> Transactions {get; set;} = new List<Transaction>();
 
     private IEnumerable<TabMonth> tabMonth = new List<TabMonth>();
 
@@ -62,7 +50,7 @@
                 StateHasChanged();
 
             }
-        
+
         }
 
     }
@@ -75,9 +63,8 @@
         }
         else
         {
-           
-            await LoadMonthly();
 
+            await LoadMonthly();
             StateHasChanged();
 
         }
@@ -86,6 +73,9 @@
     {
         isLoading = true;
         StateHasChanged();
+        // load existing Transactions for Monthly Budget
+        // Jan 1999 will be the Budget Date
+
         //editingObj = new Account() { IsNew = true };
         //editingObj = await _accountService.GetAccountById(Id);
         //ReadOnlyDel = !editingObj.Deleted;

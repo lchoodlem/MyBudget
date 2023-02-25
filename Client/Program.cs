@@ -5,8 +5,10 @@ global using MyBudget.Client.Services.BudgetYearService;
 global using MyBudget.Client.Services.OrganizationService;
 global using MyBudget.Client.Services.StartDateAmountsService;
 global using MyBudget.Client.Services.TransactionTypeService;
+global using MyBudget.Client.Services.TransactionService;
 global using MyBudget.Shared;
 global using System.Net.Http.Json;
+global using System.Globalization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MyBudget.Client;
@@ -22,6 +24,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITransactionTypeService, TransactionTypeService>();
 builder.Services.AddScoped<IBudgetYearService, BudgetYearService>();
 builder.Services.AddScoped<IAcctTypeService, AcctTypeService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddMudServices();
 
 await builder.Build().RunAsync();

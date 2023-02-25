@@ -80,7 +80,8 @@
     private string Title { get; set; } = "Create";
     private bool isLoading { get; set; } = true;
     private string insertUpdateInfo = "updated";
-    private string returnHome = $"admin/1";
+    private int tabId { get; set; } = (int)TabAdmin.Organizations;
+    private string returnHome = "admin";
     private bool formChanged { get; set; } = false;
     private MudBlazor.Color activeColor { set; get; } = Color.Success;
 
@@ -157,7 +158,7 @@
             }
             OnClickSnack("Success", $"Organization {editingObj.Name} was {insertUpdateInfo}.", true);
             await _organizationService.GetOrganizations();
-            _navigationManager.NavigateTo(returnHome);
+            _navigationManager.NavigateTo(returnHome + "/" + tabId);
         }
     }
 
@@ -194,12 +195,12 @@
             return;
         await _organizationService.DeleteOrganization(editingObj.Id);
         await _organizationService.GetOrganizations();
-        _navigationManager.NavigateTo(returnHome);
+        _navigationManager.NavigateTo(returnHome + "/" + tabId);
     }
     private async Task CancelEditing()
     {
         editingObj = new Organization();
         await _organizationService.GetOrganizations();
-        _navigationManager.NavigateTo(returnHome);
+        _navigationManager.NavigateTo(returnHome + "/" + tabId);
     }
 }

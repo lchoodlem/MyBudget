@@ -4,9 +4,9 @@ namespace MyBudget.Client.Enums
 {
     public enum TabAdmin
     {
-        BudgetYears = 0,
-        Organizations = 1,
-        Accounts = 2, TransTypes = 3, AcctTypes = 4, StartDates = 5
+        BudgetYears = 0, MonthlyBudget = 1,
+        Organizations = 2,
+        Accounts = 3, TransTypes = 4, AcctTypes = 5, StartDates = 6
     }
     public enum TabMonth
     {

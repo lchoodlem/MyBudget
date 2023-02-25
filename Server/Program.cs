@@ -7,6 +7,7 @@ global using MyBudget.Server.Services.OrganizationService;
 global using MyBudget.Server.Services.TransactionTypeService;
 global using MyBudget.Server.Services.BudgetYearService;
 global using MyBudget.Server.Services.StartDateAmountService;
+global using MyBudget.Server.Services.TransactionService;
 global using MudBlazor;
 global using MudBlazor.Services;
 
@@ -37,6 +38,7 @@ builder.Services.AddScoped<ITransactionTypeSerrvice, TransactionTypeService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IStartDateAmountService, StartDateAmountService>();
 builder.Services.AddScoped<IBudgetYearService, BudgetYearService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 
 var app = builder.Build();
