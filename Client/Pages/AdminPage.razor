@@ -16,12 +16,12 @@ else
 
     <MudTabs Elevation="4" Rounded="true" Outlined="true" @bind-ActivePanelIndex="activeIndex" AlwaysShowScrollButtons="true" Color="@Color.Info" Class="mt-4">
         <MudTabPanel Tag="TabAdmin.BudgetYears" Text="Budget Years"><BudgetYearsMgmt></BudgetYearsMgmt></MudTabPanel>
-        <MudTabPanel Tag="TabAdmin.MonthlyBudget" Text="Monthly Budget"><TransactionDetails></TransactionDetails></MudTabPanel>
+        <MudTabPanel Tag="TabAdmin.BudgetTrans" Text="Budget Transactions"><BudgetTransactions></BudgetTransactions></MudTabPanel>
         <MudTabPanel Tag="TabAdmin.Organizations" Text="Organizations"><OrganizationList></OrganizationList></MudTabPanel>
         <MudTabPanel Tag="TabAdmin.Accounts" Text="Accounts"><AccountList></AccountList></MudTabPanel>
         <MudTabPanel Tag="TabAdmin.TransTypes" Text="Transaction Types"><TransactionTypeList></TransactionTypeList></MudTabPanel>
         <MudTabPanel Tag="TabAdmin.AcctTypes" Text="Account Types"><AccountTypeList></AccountTypeList></MudTabPanel>
-        <MudTabPanel Tag="TabAdmin.StartDates" Text="Bi-Weeklsy Start Dates"></MudTabPanel>
+        <MudTabPanel Tag="TabAdmin.StartDates" Text="Bi-Weekly Start Dates"></MudTabPanel>
     </MudTabs>
 }
 

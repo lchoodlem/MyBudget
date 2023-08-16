@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using MyBudget.Shared;
-
-namespace MyBudget.Server.Services.TransactionService
+﻿namespace MyBudget.Server.Services.TransactionService
 {
     public class TransactionService : ITransactionService
     {
@@ -67,7 +63,9 @@ namespace MyBudget.Server.Services.TransactionService
         {
             var response = new ServiceResponse<List<Transaction>>
             {
-                Data = await _context.Transactions.Include(a => a.Account).Include(t => t.TransactionType).ToListAsync()
+                Data = await _context.Transactions
+                    .Include(a => a.Account)
+                    .Include(t => t.TransactionType).ToListAsync()
             };
 
             var trans = await _context.Transactions.ToListAsync();
@@ -82,10 +80,11 @@ namespace MyBudget.Server.Services.TransactionService
             {
                 Data = await _context.Transactions
                 .Where(t => t.YearInt == budgetYrInt && t.MonthInt == budgetMthInt)
-                .Include(a => a.Account).Include(t => t.TransactionType).ToListAsync()
+                .Include(a => a.Account)
+                .Include(t => t.TransactionType).ToListAsync()
             };
 
-            var trans = await _context.Transactions.ToListAsync();
+            List<Transaction> trans = await _context.Transactions.ToListAsync();
             return new ServiceResponse<List<Transaction>> { Data = trans };
 
         }

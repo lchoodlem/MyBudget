@@ -4,7 +4,7 @@ namespace MyBudget.Client.Enums
 {
     public enum TabAdmin
     {
-        BudgetYears = 0, MonthlyBudget = 1,
+        BudgetYears = 0, BudgetTrans = 1,
         Organizations = 2,
         Accounts = 3, TransTypes = 4, AcctTypes = 5, StartDates = 6
     }

@@ -1,5 +1,6 @@
 ﻿global using MyBudget.Shared;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.AspNetCore.Mvc;
 global using MyBudget.Server.Data;
 global using MyBudget.Server.Services.AcctTypeService;
 global using MyBudget.Server.Services.AccountService;

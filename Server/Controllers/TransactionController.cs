@@ -5,11 +5,11 @@ namespace MyBudget.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TransactionContoller : ControllerBase
+    public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
 
-        public TransactionContoller(ITransactionService transactionService)
+        public TransactionController(ITransactionService transactionService)
         {
             _transactionService = transactionService;
         }
@@ -27,8 +27,8 @@ namespace MyBudget.Server.Controllers
             return Ok(result);
 
         }
-        [HttpGet("{yrInt}/{mnthInt}")]
-        public async Task<ActionResult<ServiceResponse<Transaction>>> GetTransactions(int yrInt, int mnthInt)
+        [HttpGet("yr/{yrInt}/mth/{mnthInt}")]
+        public async Task<ActionResult<ServiceResponse<List<Transaction>>>> GetTransactions(int yrInt, int mnthInt)
         {
             var result = await _transactionService.GetTransactions(yrInt, mnthInt);
             return Ok(result);

@@ -1,6 +1,4 @@
-﻿using MyBudget.Shared;
-
-namespace MyBudget.Server.Services.OrganizationService
+﻿namespace MyBudget.Server.Services.OrganizationService
 {
     public class OrganizationService : IOrganizationService
     {
@@ -16,7 +14,7 @@ namespace MyBudget.Server.Services.OrganizationService
             return await _context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        
+
         public async Task<ServiceResponse<List<Organization>>> AddOrganization(Organization organization)
         {
             var foundOrganization = await _context.Organizations.FirstOrDefaultAsync(o => o.Name == organization.Name);
