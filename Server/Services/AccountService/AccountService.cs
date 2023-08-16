@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.QuickGrid;
-using MyBudget.Shared;
-
-namespace MyBudget.Server.Services.AccountService
+﻿namespace MyBudget.Server.Services.AccountService
 {
     public class AccountService : IAccountService
     {

@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-
-namespace MyBudget.Server.Controllers
+﻿namespace MyBudget.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

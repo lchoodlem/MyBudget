@@ -1,6 +1,4 @@
-﻿using MyBudget.Shared;
-
-namespace MyBudget.Server.Services.AcctTypeService
+﻿namespace MyBudget.Server.Services.AcctTypeService
 {
     public class AcctTypeService : IAcctTypeService
     {
@@ -19,7 +17,7 @@ namespace MyBudget.Server.Services.AcctTypeService
         {
             var response = new ServiceResponse<AcctType>();
             var acctType = await _context.AcctTypes.FindAsync(acctTypeId);
-            if(acctType == null)
+            if (acctType == null)
             {
                 response.Success = false;
                 response.Message = $"Sorry, but this Acctount Type id{acctTypeId} does not exist";
@@ -38,7 +36,7 @@ namespace MyBudget.Server.Services.AcctTypeService
             {
                 Data = acctTypes
             };
-            
+
         }
 
         public async Task<ServiceResponse<List<AcctType>>> AddAccountType(AcctType accountType)

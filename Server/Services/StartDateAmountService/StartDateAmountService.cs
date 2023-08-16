@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyBudget.Shared;
-
-namespace MyBudget.Server.Services.StartDateAmountService
+﻿namespace MyBudget.Server.Services.StartDateAmountService
 {
     public class StartDateAmountService : IStartDateAmountService
     {

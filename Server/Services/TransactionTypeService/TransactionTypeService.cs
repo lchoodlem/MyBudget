@@ -1,7 +1,4 @@
-﻿using Microsoft.Identity.Client;
-using MyBudget.Shared;
-
-namespace MyBudget.Server.Services.TransactionTypeService
+﻿namespace MyBudget.Server.Services.TransactionTypeService
 {
     public class TransactionTypeService : ITransactionTypeSerrvice
     {
@@ -73,7 +70,7 @@ namespace MyBudget.Server.Services.TransactionTypeService
             }
             dbTransType.TypeName = transactionType.TypeName;
             dbTransType.Debit = transactionType.Debit;
-            dbTransType.Description= transactionType.Description;
+            dbTransType.Description = transactionType.Description;
             dbTransType.Visible = transactionType.Visible;
             dbTransType.Deleted = transactionType.Deleted;// this is to allow reset
 
@@ -86,7 +83,7 @@ namespace MyBudget.Server.Services.TransactionTypeService
         public async Task<ServiceResponse<List<TransactionType>>> DeleteTransactionType(int id)
         {
             var dbTransType = await GetTransactionTypeForEdit(id);
-            if(dbTransType == null)
+            if (dbTransType == null)
             {
                 return new ServiceResponse<List<TransactionType>>
                 {
@@ -94,7 +91,7 @@ namespace MyBudget.Server.Services.TransactionTypeService
                     Message = "Transaction Type not found"
                 };
             }
-            dbTransType.Deleted= true;
+            dbTransType.Deleted = true;
             await _context.SaveChangesAsync();
 
             return await GetTransactionTypes();

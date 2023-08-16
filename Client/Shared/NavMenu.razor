@@ -37,6 +37,7 @@
 
     public bool isLoading { get; set; } = false;
     private List<BudgetYear>? yrList = new();
+    
 
     private string mthName { get; set; } = string.Empty;
     private string currYearMth { get; set; } = string.Empty;
@@ -119,7 +120,7 @@
                 {
                     menuYear = currYr.Year,
                     menuMth = @getMTH(currYr.Year, i),
-                    mthHref = "transaction/" + currYr.YearUrl + $"/month/{ i }",
+                    mthHref = "transaction" + currYr.YearUrl + $"/month/{i}",
                     menuMthInt = i
                 };
             mthMenus.Add(thisMth);
@@ -136,9 +137,6 @@
         DateTime mth = new DateTime(thisYear, iMth, 1);
         thisMMM = mth.ToString("MMM");
         return thisMMM;
-        StateHasChanged();
-        // Console.WriteLine(mth.ToString("MMM"));
-        //mth = mth.AddMonths(1);
     }
 
 }

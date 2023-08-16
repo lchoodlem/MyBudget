@@ -1,6 +1,4 @@
-﻿using MyBudget.Shared;
-
-namespace MyBudget.Client.Services.TransactionService
+﻿namespace MyBudget.Client.Services.TransactionService
 {
     public class TransactionService : ITransactionService
     {
@@ -14,9 +12,9 @@ namespace MyBudget.Client.Services.TransactionService
 
         public List<Transaction> Transactions { get; set; } = new List<Transaction>();
 
-        public async Task AddTransaction(Transaction transaction )
+        public async Task AddTransaction(Transaction transaction)
         {
-            var response = await _http.PostAsJsonAsync("api/Transaction", transaction);
+            var response = await _http.PostAsJsonAsync("api/transaction", transaction);
             Transactions = (await response.Content
                 .ReadFromJsonAsync<ServiceResponse<List<Transaction>>>()).Data;
             await GetTransactions();
@@ -50,7 +48,7 @@ namespace MyBudget.Client.Services.TransactionService
 
         public async Task<IEnumerable<Transaction>> GetTransactions()
         {
-            var response = await _http.GetFromJsonAsync<ServiceResponse<List<Transaction>>>("api/Transaction");
+            var response = await _http.GetFromJsonAsync<ServiceResponse<List<Transaction>>>("api/transaction");
             if (response != null && response.Data != null)
                 Transactions = response.Data;
             return Transactions;
@@ -59,7 +57,7 @@ namespace MyBudget.Client.Services.TransactionService
 
         public async Task<IEnumerable<Transaction>> GetTransactions(int yrInt, int mnthInt)
         {
-            var response = await _http.GetFromJsonAsync<ServiceResponse<List<Transaction>>>("api/Transaction/yrInt/mnthInt");
+            var response = await _http.GetFromJsonAsync<ServiceResponse<List<Transaction>>>($"api/transaction/yr/{yrInt}/mth/{mnthInt}");
             if (response != null && response.Data != null)
                 Transactions = response.Data;
             return Transactions;
@@ -68,7 +66,7 @@ namespace MyBudget.Client.Services.TransactionService
 
         public async Task UpdateTransaction(Transaction transaction)
         {
-            var response = await _http.PutAsJsonAsync("api/Transaction", transaction);
+            var response = await _http.PutAsJsonAsync("api/transaction", transaction);
             Transactions = (await response.Content
                 .ReadFromJsonAsync<ServiceResponse<List<Transaction>>>()).Data;
             await GetTransactions();

@@ -9,8 +9,8 @@ global using MyBudget.Client.Services.TransactionService;
 global using MyBudget.Shared;
 global using System.Net.Http.Json;
 global using System.Globalization;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+global using Microsoft.AspNetCore.Components.Web;
+global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MyBudget.Client;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
